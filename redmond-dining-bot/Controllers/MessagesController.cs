@@ -15,6 +15,31 @@ namespace redmond_dining_bot
     [BotAuthentication]
     public class MessagesController : ApiController
     {
+        public async Task<Message> Post([FromBody]Message message)
+        {
+            string diningoption;
+            DiningLUIS diLUIS = await GetEntityFromLUIS(message.Text);
+
+            if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
+            {
+                switch (diLUIS.intents[0].intent)
+                {          
+
+                    case "find-food": //find-food is an intent from LUIS
+                        diningoption = await GetDining(diLUIS.entities[0].entity);
+                        break;
+                    default:
+                        diningoption = "Sorry, I am not getting you...";
+                        break;
+                }
+            }
+            else
+            {
+                diningoption = "Sorry, I am not getting you...";
+            }
+
+            return message.CreateReplyMessage(diningoption);
+        }
 
         private async Task<string> GetDining(string dining)
         {
@@ -41,31 +66,6 @@ namespace redmond_dining_bot
             return Data;
         }
 
-        public async Task<Message> Post([FromBody]Message message)
-        {
-            string diningoption;
-            DiningLUIS diLUIS = await GetEntityFromLUIS(message.Text);
-
-            if (diLUIS.intents.Count()>0)
-            {
-                switch(diLUIS.intents[0].intent)
-                {
-                    case "find-food": //find-food is an intent from LUIS
-                        diningoption = await GetDining(diLUIS.entities[0].entity);
-                        break;
-                    default:
-                        diningoption = "Sorry, I am not getting you...";
-                        break;
-                }
-            }
-            else
-            {
-                diningoption = "Sorry, I am not getting you...";
-            }
-
-            return message.CreateReplyMessage(diningoption);
-        }
-
         private Message HandleSystemMessage(Message message)
         {
             if (message.Type == "Ping")
@@ -81,7 +81,7 @@ namespace redmond_dining_bot
             }
             else if (message.Type == "BotAddedToConversation")
             {
-                return message.CreateReplyMessage("What would you like for lunch?");
+                //return message.CreateReplyMessage("This is a test message...");
             }
             else if (message.Type == "BotRemovedFromConversation")
             {
