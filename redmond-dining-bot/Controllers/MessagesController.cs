@@ -81,7 +81,7 @@ namespace redmond_dining_bot
             }
             else if (message.Type == "BotAddedToConversation")
             {
-                //return message.CreateReplyMessage("This is a test message...");
+                return message.CreateReplyMessage("This is a test message...");
             }
             else if (message.Type == "BotRemovedFromConversation")
             {
