@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-
 namespace redmond_dining_bot
 {
     public class dining

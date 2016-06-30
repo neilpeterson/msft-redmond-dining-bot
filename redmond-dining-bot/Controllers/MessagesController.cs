@@ -9,6 +9,7 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Connector.Utilities;
 using Newtonsoft.Json;
 using DiningLUISNS;
+using redmond_dining_menu;
 
 namespace redmond_dining_bot
 {
@@ -28,6 +29,9 @@ namespace redmond_dining_bot
                     case "find-food": //find-food is an intent from LUIS
                         diningoption = await GetDining(diLUIS.entities[0].entity);
                         break;
+                    case "get-menu": //find-food is an intent from LUIS
+                        diningoption = await GetMenu(diLUIS.entities[0].entity);
+                        break;
                     default:
                         diningoption = "Sorry, I am not getting you...";
                         break;
@@ -45,6 +49,12 @@ namespace redmond_dining_bot
         {
             dining test = new dining();
             return test.getDiningHall(dining);
+        }
+
+        private async Task<string> GetMenu(string location)
+        {
+            menu menu = new menu();
+            return menu.getMenu(location);
         }
 
         private async Task<DiningLUIS> GetEntityFromLUIS(string Query)
