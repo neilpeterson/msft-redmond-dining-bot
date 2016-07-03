@@ -10,6 +10,9 @@ using Microsoft.Bot.Connector.Utilities;
 using Newtonsoft.Json;
 using DiningLUISNS;
 using redmond_dining_menu;
+using System.Collections.Generic;
+using cafens;
+using System.Collections;
 
 namespace redmond_dining_bot
 {
@@ -29,9 +32,11 @@ namespace redmond_dining_bot
                     case "find-food": //find-food is an intent from LUIS
                         diningoption = await GetDining(diLUIS.entities[0].entity);
                         break;
+
                     case "get-menu": //find-food is an intent from LUIS
                         diningoption = await GetMenu(diLUIS.entities[0].entity);
                         break;
+
                     default:
                         diningoption = "Sorry, I am not getting you...";
                         break;
@@ -47,8 +52,27 @@ namespace redmond_dining_bot
 
         private async Task<string> GetDining(string dining)
         {
-            dining test = new dining();
-            return test.getDiningHall(dining);
+            // String café - empty string will be populating from json response.
+            string cafe = string.Empty;
+
+            // Unsecure get from dining api.
+            HttpClient httpClient = new HttpClient();
+            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            // De-serialize response into list of objects with type cafe (cafe.cs). 
+            List<cafe> list = JsonConvert.DeserializeObject<List<cafe>>(responseBody);
+
+
+            // Populate string with cafe’s. 
+            foreach (var item in list)
+            {
+                cafe += item.CafeName + "\n\n";                
+            }
+
+            // Return list
+            return cafe;
         }
 
         private async Task<string> GetMenu(string location)
