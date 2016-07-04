@@ -9,9 +9,9 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Connector.Utilities;
 using Newtonsoft.Json;
 using DiningLUISNS;
-using redmond_dining_menu;
+using cafemenu;
 using System.Collections.Generic;
-using cafens;
+using cafenamespace;
 using System.Collections;
 
 namespace redmond_dining_bot
@@ -27,8 +27,7 @@ namespace redmond_dining_bot
             if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
             {
                 switch (diLUIS.intents[0].intent)
-                {          
-
+                {   
                     case "find-food": //find-food is an intent from LUIS
                         diningoption = await GetDining(diLUIS.entities[0].entity);
                         break;
@@ -63,8 +62,7 @@ namespace redmond_dining_bot
 
             // De-serialize response into list of objects with type cafe (cafe.cs). 
             List<cafe> list = JsonConvert.DeserializeObject<List<cafe>>(responseBody);
-
-
+            
             // Populate string with cafe’s. 
             foreach (var item in list)
             {
@@ -77,8 +75,29 @@ namespace redmond_dining_bot
 
         private async Task<string> GetMenu(string location)
         {
-            menu menu = new menu();
-            return menu.getMenu(location);
+            // String menu - empty string will be populating from json response.
+            string menu = string.Empty;
+
+            // Unsecure get from dining api.
+            HttpClient httpClient = new HttpClient();
+            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/CafeName/cafe%20" + location + "/items");
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            // De-serialize response into list of objects with type cafe (menu.cs).
+            List<Rootobject> list = JsonConvert.DeserializeObject<List<Rootobject>>(responseBody);
+
+            // Populate string with menu item description. 
+            foreach (var item in list)
+            {
+                foreach (var item2 in item.CafeItems)
+                {
+                    menu += item2.Description + "\n\n";
+                }
+            }
+
+            // Return list
+            return menu;
         }
 
         private async Task<DiningLUIS> GetEntityFromLUIS(string Query)
