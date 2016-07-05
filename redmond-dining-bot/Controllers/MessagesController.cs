@@ -13,6 +13,9 @@ using cafemenu;
 using System.Collections.Generic;
 using cafenamespace;
 using System.Collections;
+using aadauthhelper;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System.Net.Http.Headers;
 
 namespace redmond_dining_bot
 {
@@ -54,8 +57,17 @@ namespace redmond_dining_bot
             // String café - empty string will be populating from json response.
             string cafe = string.Empty;
 
+            // authentication stuff - this needs to be moved / more effeciently coded
+            string clientId = "replace";
+            string key = "replace";
+            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
+            AuthenticationContext authContext = new AuthenticationContext(authorityUri);
+            var credential = new ClientCredential(clientId, key);
+            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
+
             // Unsecure get from dining api.
             HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -78,8 +90,17 @@ namespace redmond_dining_bot
             // String menu - empty string will be populating from json response.
             string menu = string.Empty;
 
-            // Unsecure get from dining api.
+            // authentication stuff - this needs to be moved / more effeciently coded
+            string clientId = "replace";
+            string key = "replace";
+            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
+            AuthenticationContext authContext = new AuthenticationContext(authorityUri);
+            var credential = new ClientCredential(clientId, key);
+            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
+
+            // Get from dining api.
             HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/CafeName/cafe%20" + location + "/items");
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -151,6 +172,7 @@ namespace redmond_dining_bot
 
             return null;
         }
+
     }
 
 }
