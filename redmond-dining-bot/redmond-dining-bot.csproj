@@ -114,7 +114,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\aad-auth-helper.cs" />
     <Compile Include="Controllers\cafe.cs" />
     <Compile Include="Controllers\luis.cs" />
     <Compile Include="Controllers\menu.cs" />
