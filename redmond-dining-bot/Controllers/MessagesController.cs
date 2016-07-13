@@ -125,7 +125,7 @@ namespace redmond_dining_bot
             Dictionary<string, string> buildingid = new Dictionary<string, string>();
             buildingid.Add("5", "4");
             buildingid.Add("9", "2690");
-            buildingid.Add(" 8", "2690");
+            buildingid.Add("8", "8");
             buildingid.Add("22", "21");
             buildingid.Add("25", "23");
 
@@ -146,20 +146,29 @@ namespace redmond_dining_bot
             // Get from dining api.
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
 
-            // De-serialize response into list of objects with type cafe (menu.cs).
-            List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
-
-            // Populate string with menu item description. 
-            foreach (var item in list)
+            try
             {
-                foreach (var item2 in item.CafeItems)
+                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                // De-serialize response into list of objects with type cafe (menu.cs).
+                List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
+
+                // Populate string with menu item description. 
+                foreach (var item in list)
                 {
-                    menu += item2.Name + "\n\n";
+                    foreach (var item2 in item.CafeItems)
+                    {
+                        menu += item2.Name + "\n\n";
+                    }
                 }
+            }
+            catch
+            {
+                // Friendly message vs. 404 for a more ‘conversational’ like response. 
+                menu += "Menu not found.";
             }
 
             // Return list
@@ -218,7 +227,5 @@ namespace redmond_dining_bot
 
             return null;
         }
-
     }
-
 }
