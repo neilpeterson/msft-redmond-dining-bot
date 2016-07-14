@@ -126,12 +126,16 @@ namespace redmond_dining_bot
                 // De-serialize response into list of objects with type cafe (menu.cs).
                 List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
 
+                menu += "[Cafe 16]('https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café 16')" + "\n\n";
+
                 // Populate string with menu item description. 
                 foreach (var item in list)
                 {
+                    menu += "**" + item.Name + "** \n\n";
+
                     foreach (var item2 in item.CafeItems)
                     {
-                        menu += item2.Name + "\n\n";
+                        menu += "- " + item2.Name + "\n\n";
                     }
                 }
             }
