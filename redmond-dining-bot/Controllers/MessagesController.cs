@@ -7,12 +7,11 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Connector.Utilities;
 using Newtonsoft.Json;
 using DiningLUISNS;
-using cafemenu;
 using System.Collections.Generic;
 using cafenamespace;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net.Http.Headers;
 using cafemenudays;
+using diningauthentication;
 
 namespace redmond_dining_bot
 {
@@ -55,16 +54,15 @@ namespace redmond_dining_bot
             // String café - empty string will be populating from json response.
             string cafe = string.Empty;
 
-            // authentication stuff - this needs to be moved / more effeciently coded
-            string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
-            string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
-            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
-            AuthenticationContext authContext = new AuthenticationContext(authorityUri); var credential = new ClientCredential(clientId, key);
-            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
+            // Get authentication token from authentication.cs
+            diningauth auth = new diningauth();
+            string authtoken = await auth.GetAuthHeader();
 
-            // Get from dining api.
+            // Get auth headers from AAD
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+
+            // Get cafe from refdinign API
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -80,42 +78,6 @@ namespace redmond_dining_bot
 
             // Return list
             return cafe;
-        }
-
-        // This method is no longer used, leaving for reference, remove when complete.
-        private async Task<string> GetMenu(string location)
-        {
-            // String menu - empty string will be populating from json response.
-            string menu = string.Empty;
-
-            // authentication stuff - this needs to be moved / more effeciently coded
-            string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
-            string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
-            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
-            AuthenticationContext authContext = new AuthenticationContext(authorityUri); var credential = new ClientCredential(clientId, key);
-            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
-
-            // Get from dining api.
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/CafeName/cafe%20" + location + "/items");
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-
-            // De-serialize response into list of objects with type cafe (menu.cs).
-            List<Rootobject> list = JsonConvert.DeserializeObject<List<Rootobject>>(responseBody);
-
-            // Populate string with menu item description. 
-            foreach (var item in list)
-            {
-                foreach (var item2 in item.CafeItems)
-                {
-                    menu += item2.Name + "\n\n";
-                }
-            }
-
-            // Return list
-            return menu;
         }
 
         private async Task<string> GetMenuDay(string location)
@@ -136,17 +98,15 @@ namespace redmond_dining_bot
             // String menu - empty string will be populating from json response.
             string menu = string.Empty;
 
-            // authentication stuff - this needs to be moved / more effeciently coded
-            string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
-            string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
-            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
-            AuthenticationContext authContext = new AuthenticationContext(authorityUri); var credential = new ClientCredential(clientId, key);
-            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
+            // Get authentication token from authentication.cs
+            diningauth auth = new diningauth();            
+            string authtoken = await auth.GetAuthHeader();
 
-            // Get from dining api.
+            // Get auth headers from AAD
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
 
+            // Get menu from refdinign API
             try
             {
                 HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
