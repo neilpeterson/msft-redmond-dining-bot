@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using cafenamespace;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net.Http.Headers;
+using cafemenudays;
 
 namespace redmond_dining_bot
 {
@@ -31,8 +32,9 @@ namespace redmond_dining_bot
                         diningoption = await GetDining(diLUIS.entities[0].entity);
                         break;
 
+                        // change this back to GetMenu if test does not work out
                     case "get-menu": //find-food is an intent from LUIS
-                        diningoption = await GetMenu(diLUIS.entities[0].entity);
+                        diningoption = await GetMenuDay(diLUIS.entities[0].entity);
                         break;
 
                     default:
@@ -80,6 +82,7 @@ namespace redmond_dining_bot
             return cafe;
         }
 
+        // This method is no longer used, leaving for reference, remove when complete.
         private async Task<string> GetMenu(string location)
         {
             // String menu - empty string will be populating from json response.
@@ -113,6 +116,64 @@ namespace redmond_dining_bot
 
             // Return list
             return menu;
+        }
+
+        private async Task<string> GetMenuDay(string location)
+        {
+
+            // Building id dictionary – not all buildings have logical building id’s 
+            Dictionary<string, string> buildingid = new Dictionary<string, string>();
+            buildingid.Add("5", "4");
+            buildingid.Add("9", "2690");
+            buildingid.Add("8", "8");
+            buildingid.Add("22", "21");
+            buildingid.Add("25", "23");
+
+            // Get the day of the week (1 – 5) for use in API URI. 
+            DateTime day = DateTime.Now;
+            int today = (int)day.DayOfWeek;
+
+            // String menu - empty string will be populating from json response.
+            string menu = string.Empty;
+
+            // authentication stuff - this needs to be moved / more effeciently coded
+            string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
+            string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
+            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
+            AuthenticationContext authContext = new AuthenticationContext(authorityUri); var credential = new ClientCredential(clientId, key);
+            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
+
+            // Get from dining api.
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+
+            try
+            {
+                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                // De-serialize response into list of objects with type cafe (menu.cs).
+                List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
+
+                // Populate string with menu item description. 
+                foreach (var item in list)
+                {
+                    foreach (var item2 in item.CafeItems)
+                    {
+                        menu += item2.Name + "\n\n";
+                    }
+                }
+            }
+            catch
+            {
+                // Friendly message vs. 404 for a more ‘conversational’ like response. 
+                menu += "Menu not found.";
+            }
+
+            // Return list
+            return menu;
+
         }
 
         private async Task<DiningLUIS> GetEntityFromLUIS(string Query)
@@ -166,7 +227,5 @@ namespace redmond_dining_bot
 
             return null;
         }
-
     }
-
 }

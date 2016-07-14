@@ -5,6 +5,7 @@ using System.Web;
 
 namespace cafemenu
 {
+    // This class is no longer used, leaving for reference, remove when complete.
     public class Rootobject
     {
         public string Name { get; set; }
