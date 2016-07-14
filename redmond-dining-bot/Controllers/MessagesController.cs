@@ -58,11 +58,9 @@ namespace redmond_dining_bot
             diningauth auth = new diningauth();
             string authtoken = await auth.GetAuthHeader();
 
-            // Get auth headers from AAD
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-
             // Get cafe from refdinign API
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);                        
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -85,11 +83,24 @@ namespace redmond_dining_bot
 
             // Building id dictionary – not all buildings have logical building id’s 
             Dictionary<string, string> buildingid = new Dictionary<string, string>();
-            buildingid.Add("5", "4");
-            buildingid.Add("9", "2690");
-            buildingid.Add("8", "8");
-            buildingid.Add("22", "21");
-            buildingid.Add("25", "23");
+            buildingid.Add("4", "4");
+            buildingid.Add("9", "8");
+            buildingid.Add("22", "21"); //not found
+            buildingid.Add("25", "22"); //not found
+            buildingid.Add("26", "24");
+            buildingid.Add("31", "197");
+            buildingid.Add("Studio X", "233"); //not found
+            buildingid.Add("50", "350");
+            buildingid.Add("113", "355"); //not found
+            buildingid.Add("112", "358");
+            buildingid.Add("16", "436");
+            buildingid.Add("17", "436");
+            buildingid.Add("18", "436");
+            buildingid.Add("42", "438");
+            buildingid.Add("43", "438");
+            buildingid.Add("44", "438");
+            buildingid.Add("SAMM-D", "473"); //not found
+            buildingid.Add("92", "100128"); //not found
 
             // Get the day of the week (1 – 5) for use in API URI. 
             DateTime day = DateTime.Now;
@@ -102,11 +113,10 @@ namespace redmond_dining_bot
             diningauth auth = new diningauth();            
             string authtoken = await auth.GetAuthHeader();
 
-            // Get auth headers from AAD
+            // Get menu from refdinign API
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
 
-            // Get menu from refdinign API
             try
             {
                 HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
@@ -133,7 +143,6 @@ namespace redmond_dining_bot
 
             // Return list
             return menu;
-
         }
 
         private async Task<DiningLUIS> GetEntityFromLUIS(string Query)
