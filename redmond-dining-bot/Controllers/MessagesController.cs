@@ -7,12 +7,11 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Connector.Utilities;
 using Newtonsoft.Json;
 using DiningLUISNS;
-using cafemenu;
 using System.Collections.Generic;
 using cafenamespace;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net.Http.Headers;
 using cafemenudays;
+using diningauthentication;
 
 namespace redmond_dining_bot
 {
@@ -21,33 +20,42 @@ namespace redmond_dining_bot
     {
         public async Task<Message> Post([FromBody]Message message)
         {
-            string diningoption;
-            DiningLUIS diLUIS = await GetEntityFromLUIS(message.Text);
-
-            if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
+            if (message.Type == "Message")
             {
-                switch (diLUIS.intents[0].intent)
-                {   
-                    case "find-food": //find-food is an intent from LUIS
-                        diningoption = await GetDining(diLUIS.entities[0].entity);
-                        break;
+
+                string diningoption;
+                DiningLUIS diLUIS = await GetEntityFromLUIS(message.Text);
+
+                if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
+                {
+                    switch (diLUIS.intents[0].intent)
+                    {
+                        case "find-food": //find-food is an intent from LUIS
+                            diningoption = await GetDining(diLUIS.entities[0].entity);
+                            break;
 
                         // change this back to GetMenu if test does not work out
-                    case "get-menu": //find-food is an intent from LUIS
-                        diningoption = await GetMenuDay(diLUIS.entities[0].entity);
-                        break;
+                        case "get-menu": //find-food is an intent from LUIS
+                            diningoption = await GetMenuDay(diLUIS.entities[0].entity);
+                            break;
 
-                    default:
-                        diningoption = "Sorry, I am not getting you...";
-                        break;
+                        default:
+                            diningoption = "Sorry, I am not getting you...";
+                            break;
+                    }
                 }
+                else
+                {
+                    diningoption = "Sorry, I am not getting you...";
+                }
+
+                return message.CreateReplyMessage(diningoption);
             }
             else
             {
-                diningoption = "Sorry, I am not getting you...";
+                HandleSystemMessage(message);
+                return message;
             }
-
-            return message.CreateReplyMessage(diningoption);
         }
 
         private async Task<string> GetDining(string dining)
@@ -55,16 +63,13 @@ namespace redmond_dining_bot
             // String café - empty string will be populating from json response.
             string cafe = string.Empty;
 
-            // authentication stuff - this needs to be moved / more effeciently coded
-            string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
-            string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
-            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
-            AuthenticationContext authContext = new AuthenticationContext(authorityUri); var credential = new ClientCredential(clientId, key);
-            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
+            // Get authentication token from authentication.cs
+            diningauth auth = new diningauth();
+            string authtoken = await auth.GetAuthHeader();
 
-            // Get from dining api.
+            // Get cafe from refdinign API
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);                        
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -82,52 +87,29 @@ namespace redmond_dining_bot
             return cafe;
         }
 
-        // This method is no longer used, leaving for reference, remove when complete.
-        private async Task<string> GetMenu(string location)
-        {
-            // String menu - empty string will be populating from json response.
-            string menu = string.Empty;
-
-            // authentication stuff - this needs to be moved / more effeciently coded
-            string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
-            string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
-            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
-            AuthenticationContext authContext = new AuthenticationContext(authorityUri); var credential = new ClientCredential(clientId, key);
-            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
-
-            // Get from dining api.
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/CafeName/cafe%20" + location + "/items");
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-
-            // De-serialize response into list of objects with type cafe (menu.cs).
-            List<Rootobject> list = JsonConvert.DeserializeObject<List<Rootobject>>(responseBody);
-
-            // Populate string with menu item description. 
-            foreach (var item in list)
-            {
-                foreach (var item2 in item.CafeItems)
-                {
-                    menu += item2.Name + "\n\n";
-                }
-            }
-
-            // Return list
-            return menu;
-        }
-
         private async Task<string> GetMenuDay(string location)
         {
 
             // Building id dictionary – not all buildings have logical building id’s 
             Dictionary<string, string> buildingid = new Dictionary<string, string>();
-            buildingid.Add("5", "4");
-            buildingid.Add("9", "2690");
-            buildingid.Add("8", "8");
-            buildingid.Add("22", "21");
-            buildingid.Add("25", "23");
+            buildingid.Add("4", "4");
+            buildingid.Add("9", "8");
+            buildingid.Add("22", "21"); //not found
+            buildingid.Add("25", "22"); //not found
+            buildingid.Add("26", "24");
+            buildingid.Add("31", "197");
+            buildingid.Add("Studio X", "233"); //not found
+            buildingid.Add("50", "350");
+            buildingid.Add("113", "355"); //not found
+            buildingid.Add("112", "358");
+            buildingid.Add("16", "436");
+            buildingid.Add("17", "436");
+            buildingid.Add("18", "436");
+            buildingid.Add("42", "438");
+            buildingid.Add("43", "438");
+            buildingid.Add("44", "438");
+            buildingid.Add("SAMM-D", "473"); //not found
+            buildingid.Add("92", "100128"); //not found
 
             // Get the day of the week (1 – 5) for use in API URI. 
             DateTime day = DateTime.Now;
@@ -136,16 +118,13 @@ namespace redmond_dining_bot
             // String menu - empty string will be populating from json response.
             string menu = string.Empty;
 
-            // authentication stuff - this needs to be moved / more effeciently coded
-            string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
-            string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
-            string authorityUri = "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token";
-            AuthenticationContext authContext = new AuthenticationContext(authorityUri); var credential = new ClientCredential(clientId, key);
-            var token = await authContext.AcquireTokenAsync("https://microsoft.onmicrosoft.com/Dining", credential);
+            // Get authentication token from authentication.cs
+            diningauth auth = new diningauth();            
+            string authtoken = await auth.GetAuthHeader();
 
-            // Get from dining api.
+            // Get menu from refdinign API
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
 
             try
             {
@@ -156,12 +135,16 @@ namespace redmond_dining_bot
                 // De-serialize response into list of objects with type cafe (menu.cs).
                 List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
 
+                menu += "#[Cafe " + location + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café " + location + ")" + "\n\n";
+
                 // Populate string with menu item description. 
                 foreach (var item in list)
                 {
+                    menu += "**" + item.Name + "** \n\n";
+
                     foreach (var item2 in item.CafeItems)
                     {
-                        menu += item2.Name + "\n\n";
+                        menu += "- " + item2.Name + "\n\n";
                     }
                 }
             }
@@ -173,7 +156,6 @@ namespace redmond_dining_bot
 
             // Return list
             return menu;
-
         }
 
         private async Task<DiningLUIS> GetEntityFromLUIS(string Query)
