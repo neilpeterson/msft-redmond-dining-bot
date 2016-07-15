@@ -20,33 +20,42 @@ namespace redmond_dining_bot
     {
         public async Task<Message> Post([FromBody]Message message)
         {
-            string diningoption;
-            DiningLUIS diLUIS = await GetEntityFromLUIS(message.Text);
-
-            if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
+            if (message.Type == "Message")
             {
-                switch (diLUIS.intents[0].intent)
-                {   
-                    case "find-food": //find-food is an intent from LUIS
-                        diningoption = await GetDining(diLUIS.entities[0].entity);
-                        break;
+
+                string diningoption;
+                DiningLUIS diLUIS = await GetEntityFromLUIS(message.Text);
+
+                if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
+                {
+                    switch (diLUIS.intents[0].intent)
+                    {
+                        case "find-food": //find-food is an intent from LUIS
+                            diningoption = await GetDining(diLUIS.entities[0].entity);
+                            break;
 
                         // change this back to GetMenu if test does not work out
-                    case "get-menu": //find-food is an intent from LUIS
-                        diningoption = await GetMenuDay(diLUIS.entities[0].entity);
-                        break;
+                        case "get-menu": //find-food is an intent from LUIS
+                            diningoption = await GetMenuDay(diLUIS.entities[0].entity);
+                            break;
 
-                    default:
-                        diningoption = "Sorry, I am not getting you...";
-                        break;
+                        default:
+                            diningoption = "Sorry, I am not getting you...";
+                            break;
+                    }
                 }
+                else
+                {
+                    diningoption = "Sorry, I am not getting you...";
+                }
+
+                return message.CreateReplyMessage(diningoption);
             }
             else
             {
-                diningoption = "Sorry, I am not getting you...";
+                HandleSystemMessage(message);
+                return message;
             }
-
-            return message.CreateReplyMessage(diningoption);
         }
 
         private async Task<string> GetDining(string dining)
@@ -126,7 +135,7 @@ namespace redmond_dining_bot
                 // De-serialize response into list of objects with type cafe (menu.cs).
                 List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
 
-                menu += "[Cafe 16]('https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café 16')" + "\n\n";
+                menu += "#[Cafe " + location + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café " + location + ")" + "\n\n";
 
                 // Populate string with menu item description. 
                 foreach (var item in list)
