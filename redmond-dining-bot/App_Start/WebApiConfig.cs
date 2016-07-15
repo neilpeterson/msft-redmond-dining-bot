@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace redmond_dining_bot
+namespace msftbot
 {
     public static class WebApiConfig
     {

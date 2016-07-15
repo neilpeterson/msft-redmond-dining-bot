@@ -1,19 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
+﻿using DiningLUISNS;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Connector.Utilities;
 using Newtonsoft.Json;
-using DiningLUISNS;
+using System;
 using System.Collections.Generic;
-using cafenamespace;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
-using cafemenudays;
-using diningauthentication;
+using System.Threading.Tasks;
+using System.Web.Http;
 
-namespace redmond_dining_bot
+namespace msftbot
 {
     [BotAuthentication]
     public class MessagesController : ApiController
@@ -94,6 +91,7 @@ namespace redmond_dining_bot
             Dictionary<string, string> buildingid = new Dictionary<string, string>();
             buildingid.Add("4", "4");
             buildingid.Add("9", "8");
+            buildingid.Add("10", "8");
             buildingid.Add("22", "21"); //not found
             buildingid.Add("25", "22"); //not found
             buildingid.Add("26", "24");
