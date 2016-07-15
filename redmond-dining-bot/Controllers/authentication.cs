@@ -1,12 +1,7 @@
 ﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
 
-namespace diningauthentication
+namespace msftbot
 {
     public class diningauth
     {
