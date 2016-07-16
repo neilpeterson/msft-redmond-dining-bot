@@ -1,0 +1,668 @@
+﻿[
+  {
+    "Name": "BREAKFAST",
+    "CafeItems": [
+      {
+        "Name": "Breakfast",
+        "Description": "Come check out our pastries, hot breakfast and fruit bar.",
+        "CafeMenuCategory": null,
+        "Prices": "prices vary",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "prices vary",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "ECHO'S",
+    "CafeItems": [
+      {
+        "Name": "Echo's",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$6.95/8.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$6.95/8.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "GLOBAL GARDEN",
+    "CafeItems": [
+      {
+        "Name": "Vegetarian Curried Carrot Salad",
+        "Description": "carrots shredded tossed with raisins, curry powder, parsley, honey, salt and mayo",
+        "CafeMenuCategory": null,
+        "Prices": "$.49 oz",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$.49 oz",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegetarian Sun-Dried Tomato Couscous",
+        "Description": "golden jewel blend tossed with bell peppers, artichoke, tomato, olives, green onions and sun-dried tomato.",
+        "CafeMenuCategory": null,
+        "Prices": "$.49 oz",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$.49 oz",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Grilled Corn, Tomato & Heirloom Bean Salad",
+        "Description": "corn tossed with heirloom beans, tomatoes, chives, sherry vinegar, olive oil, salt and pepper",
+        "CafeMenuCategory": null,
+        "Prices": "$.49 oz",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$.49 oz",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegetarian Couscous, Quinoa & Spinach Salad",
+        "Description": "diced pineapple tossed with green onions, cilantro, spinach,  golden jewel blend, lime juice and sweet Thai chili sauce",
+        "CafeMenuCategory": null,
+        "Prices": "$.49 oz",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$.49 oz",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "GLOBAL KITCHEN",
+    "CafeItems": [
+      {
+        "Name": "Apricot Glazed Pork Shoulder",
+        "Description": "pork shoulder trimmed and roasted, then glazed with an apricot & balsamic mixture; served with vegan roasted potatoes w/rosemary and vegan steamed broccoli. Vegetarian Offering Available",
+        "CafeMenuCategory": null,
+        "Prices": "$7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Adobe Flats",
+        "Description": "classic Mexican dishes like, vegan chorizo tofu, chile braised beef, chipotle grilled chicken and loads of fresh made authentic salsas and toppings.",
+        "CafeMenuCategory": null,
+        "Prices": "$7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Blueberry & Chicken Salad",
+        "Description": "spring mix tossed with chicken, blueberries, red onions, carrots, almonds, pepper bacon, poppy seeds and balsamic vinaigrette. Vegan option available",
+        "CafeMenuCategory": null,
+        "Prices": "$7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Brisket",
+        "Description": "beef brisket rubbed with house blend bbq dry rub and served with vegetarian mac & cheese and baked beans. Vegetarian offering available",
+        "CafeMenuCategory": null,
+        "Prices": "$7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "BBQ Chicken ",
+        "Description": "quarter chicken seasoned with custom BBQ blend then roasted; served with creamy vegetarian mac & cheese and baked beans. Vegan Option Available",
+        "CafeMenuCategory": null,
+        "Prices": "$7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Herbed Top Round Roast",
+        "Description": "beef marinated in thyme, rosemary, salt, pepper and placed into a pan with wine, water, onions and garlic; served with vegetarian mashed potatoes and vegan roasted squash & zucchini. Vegetarian Option Available",
+        "CafeMenuCategory": null,
+        "Prices": "$7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "ITALIAN",
+    "CafeItems": [
+      {
+        "Name": "Quick Fire Pizza",
+        "Description": "come customize a thin crust pizza with your choice of sauce, cheese, and up to four toppings. Vegetarian Options available.",
+        "CafeMenuCategory": null,
+        "Prices": "$3.75",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.75",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Pasta Ya Gotcha",
+        "Description": "customize your pasta with a variety of choice on sauce, noodles, protein and toppings.",
+        "CafeMenuCategory": null,
+        "Prices": "$7.80",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.80",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "SUB SHOPPE",
+    "CafeItems": [
+      {
+        "Name": "Prime Rib Sub",
+        "Description": "Shaved prime rib, horseradish and topped with cheddar cheese in a house made sub toasted.",
+        "CafeMenuCategory": null,
+        "Prices": "$4.00/6.00",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$4.00/6.00",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Chipotle Chicken & Bacon Sub",
+        "Description": "Pepper crusted bacon with chipotle glazed chicken breast, red onions, pepper jack cheese and cilantro aioli in a house made sub roll toasted.",
+        "CafeMenuCategory": null,
+        "Prices": "$4.00/6.00",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$4.00/6.00",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "BURGER",
+    "CafeItems": [
+      {
+        "Name": "Gigabyte",
+        "Description": "double patty, special sauce, lettuce, pickles, onion and tomato",
+        "CafeMenuCategory": null,
+        "Prices": "$3.50",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.50",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "SAPPORO",
+    "CafeItems": [
+      {
+        "Name": "Sapporo Teriyaki",
+        "Description": "Local brand serving teriyaki.",
+        "CafeMenuCategory": null,
+        "Prices": "$7.50/9.00",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.50/9.00",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "KALIA",
+    "CafeItems": [
+      {
+        "Name": "Kalia",
+        "Description": "Local brand serving Indian cuisine",
+        "CafeMenuCategory": null,
+        "Prices": "$8.75/9.50",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$8.75/9.50",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "THAI GINGER",
+    "CafeItems": [
+      {
+        "Name": "Thai Ginger",
+        "Description": "your choice of phad thai chicken, red curry chicken, beef & broccoli, cashew chicken or tofu.",
+        "CafeMenuCategory": null,
+        "Prices": "$7.99/9.50",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$7.99/9.50",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  },
+  {
+    "Name": "SOUP",
+    "CafeItems": [
+      {
+        "Name": "Chicken Noodle",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Thai Peanut Chicken",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegan Old Fashioned Tomato",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegetarian Beecher's Wild Rice",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Cajun Pork Chili",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegetarian Broccoli Cheddar",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Beef Chili ",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegan Butternut Squash Bisque",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Turkey Chili with Beans",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegan Southwest Vegetable Soup",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "New England Clam Chowder",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegetarian Curry Cauliflower",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2678,
+    "CafeName": "Cafe 4",
+    "Id": -1
+  }
+]

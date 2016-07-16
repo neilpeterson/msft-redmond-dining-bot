@@ -1,0 +1,812 @@
+﻿[
+  {
+    "Name": "BREAKFAST",
+    "CafeItems": [
+      {
+        "Name": "NW Omelet",
+        "Description": "NW smoked salmon, tomato and Boursin cheese",
+        "CafeMenuCategory": null,
+        "Prices": "Price Varies",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "Price Varies",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "BELT",
+        "Description": "Bacon(turkey), white egg, lettuce, tomato on toasted wheat bread.",
+        "CafeMenuCategory": null,
+        "Prices": "Price Varies",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "Price Varies",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "CHEF'S TABLE",
+    "CafeItems": [
+      {
+        "Name": "Chorizo and Gnocchi",
+        "Description": "Chorizo with kale and green chickpea over gnocchi.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Baja  Tacos",
+        "Description": "Chipotle sauce, Lime Cilantro Slaw, Fruit Salsa. Served in Tortillas.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Tofu Baja Taco(vegetarian)",
+        "Description": "Chipotle sauce, Lime Cilantro Slaw, Fruit Salsa. Served in Tortillas.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.80/7.70",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.80/7.70",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Bento Box",
+        "Description": "Kalbi short rib, teriyaki chicken, shrimp, spring roll, ahi and white rice with a mix salad tossed in a sesemi vinaigrette.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegetarian Option Available",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Sausage with Potato Beet Hash",
+        "Description": "Men's Room Sausage with potato and beet hash and macerated brussel sprout, pear, fried egg and a microgreen salad.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Pulled Pork Slider",
+        "Description": "Slow roasted pulled pork and coleslaw with Tim's potato chips.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "MARKET FRESH",
+    "CafeItems": [
+      {
+        "Name": "Organic Salad(vegetarian)",
+        "Description": "Quinoa, corn, cilantro, tomoato, avacado, green onions tossed with a chipotle limes dressing",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Thai Beef",
+        "Description": "Marinaited beef with rice noodle, cilanto, green onion, edamame peppers, and cabbage in a rice wine vinaigtette.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "LOCAL RESTAURANTS",
+    "CafeItems": [
+      {
+        "Name": "Maya's",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$8.76",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$8.76",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Thai Ginger ",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$9.50",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$9.50",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Shanghai Shanghai",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$8.30",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$8.30",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Naanz",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$8.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$8.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Basil",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$8.50",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$8.50",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "NAPOLI",
+    "CafeItems": [
+      {
+        "Name": "Pizza con aglio arrosto, olive e rucola Wheat dough, Napolis sauce, Roasted garlic, Kalamata olives, Tomato fresca",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$6.75",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$6.75",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Whole Wheat Pizza Caprese con Mozzarella di Bufala Wheat dough, Napolis sauce, Sliced mozz, Sliced Romas",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$6.75",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$6.75",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "SUB SHOPPE",
+    "CafeItems": [
+      {
+        "Name": "Roasted Vegetable Sub",
+        "Description": "Roasted onion, roasted mushroom, guacamole, olive, lettuce, tomato, olive oil, salt and pepper.",
+        "CafeMenuCategory": null,
+        "Prices": "$4.00/6.00",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$4.00/6.00",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Prime Rib Sub",
+        "Description": "Shaved prime rib & horseradish topped w/ cheddar",
+        "CafeMenuCategory": null,
+        "Prices": "$4.00/6.00",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$4.00/6.00",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "GLOBAL KITCHEN",
+    "CafeItems": [
+      {
+        "Name": "Indian ",
+        "Description": "Choice of Chicken Tikka or Sagg Paneer served over basmati rice or brown rice.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Curried Lentil(vegan)",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "BBQ",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegetarian Option Available",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "House of Yoshi ",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "Price Varies",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "Price Varies",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Vegan Option Available",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "WED"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Mexican   ",
+        "Description": "Choice of chicken tinga, beef barbacoa or pork carnitas.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Tofu Chorizo(vegan)",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "THU"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Local and Sustainable",
+        "Description": "Pork rack and Draper Valley roasted chicken.",
+        "CafeMenuCategory": null,
+        "Prices": "$5.95/7.95",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$5.95/7.95",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "DESSERT",
+    "CafeItems": [
+      {
+        "Name": "Fresh Baked Croissants ",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "Price Varies",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "Price Varies",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "FLAME",
+    "CafeItems": [
+      {
+        "Name": "Halal Chicken Breast",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$4",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$4",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Grilled NY Strip Steak ",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$6.20",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$6.20",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  },
+  {
+    "Name": "SOUP",
+    "CafeItems": [
+      {
+        "Name": "Chicken Noodle Soup with Wheat Pasta",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Old Fashion Tomato(vegan)",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Beechers with Wild Rice(vegetarian)",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Garden Vegetable(vegan)",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Beef Spinach and Barley",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Thai Peanut Chicken",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "MON",
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      },
+      {
+        "Name": "Turkey Barley",
+        "Description": null,
+        "CafeMenuCategory": null,
+        "Prices": "$3.35/4.55",
+        "CafeItemPrices": [
+          {
+            "Unit": null,
+            "Price": "$3.35/4.55",
+            "Id": -1
+          }
+        ],
+        "WeekDays": [
+          "TUE",
+          "WED",
+          "THU",
+          "FRI"
+        ],
+        "Id": -1
+      }
+    ],
+    "CafeId": 2698,
+    "CafeName": "Cafe 16",
+    "Id": -1
+  }
+]
