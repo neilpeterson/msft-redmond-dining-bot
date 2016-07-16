@@ -24,19 +24,19 @@ namespace msftbot
 
                 #region LUIS
                 string diningoption;
-                DiningLUIS diLUIS = await GetEntityFromLUIS(activity.Text);
+                Luis diLUIS = await GetEntityFromLUIS(activity.Text);
                 
                 if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
                 {
                     switch (diLUIS.intents[0].intent)
                     {
                         case "find-food": //find-food is an intent from LUIS
-                            diningoption = await GetDining(diLUIS.entities[0].entity);
+                            diningoption = await GetCafe(diLUIS.entities[0].entity);
                             break;
 
                         // change this back to GetMenu if test does not work out
                         case "get-menu": //find-food is an intent from LUIS
-                            diningoption = await GetMenuDay(diLUIS.entities[0].entity);
+                            diningoption = await GetCafeMenu(diLUIS.entities[0].entity);
                             break;
 
                         default:
@@ -61,13 +61,13 @@ namespace msftbot
             return response;
         }
 
-        private async Task<string> GetDining(string dining)
+        private async Task<string> GetCafe(string dining)
         {
             // String café - empty string will be populating from json response.
             string cafe = string.Empty;
 
             // Get authentication token from authentication.cs
-            diningauth auth = new diningauth();
+            Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
 
             // Get cafe from refdinign API
@@ -78,7 +78,7 @@ namespace msftbot
             string responseBody = await response.Content.ReadAsStringAsync();
 
             // De-serialize response into list of objects with type cafe (cafe.cs). 
-            List<cafe> list = JsonConvert.DeserializeObject<List<cafe>>(responseBody);
+            List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
             
             // Populate string with cafe’s. 
             foreach (var item in list)
@@ -90,7 +90,7 @@ namespace msftbot
             return cafe;
         }
 
-        private async Task<string> GetMenuDay(string location)
+        private async Task<string> GetCafeMenu(string location)
         {
 
             // Building id dictionary – not all buildings have logical building id’s 
@@ -123,7 +123,7 @@ namespace msftbot
             string menu = string.Empty;
 
             // Get authentication token from authentication.cs
-            diningauth auth = new diningauth();            
+            Authentication auth = new Authentication();            
             string authtoken = await auth.GetAuthHeader();
 
             // Get menu from refdinign API
@@ -137,7 +137,7 @@ namespace msftbot
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 // De-serialize response into list of objects with type cafe (menu.cs).
-                List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
+                List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
                 menu += "#[Cafe " + location + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café " + location + ")" + "\n\n";
 
@@ -162,10 +162,10 @@ namespace msftbot
             return menu;
         }
 
-        private async Task<DiningLUIS> GetEntityFromLUIS(string Query)
+        private async Task<Luis> GetEntityFromLUIS(string Query)
         {
             Query = Uri.EscapeDataString(Query);
-            DiningLUIS Data = new DiningLUIS();
+            Luis Data = new Luis();
             using (HttpClient client = new HttpClient())
             {
                 string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=c2546bcf-7f12-42d6-9f38-909ebcbc84f2&subscription-key=9dd14d788e9b4bf0acf0a2a4aa34e7d3&q=" + Query;
@@ -174,7 +174,7 @@ namespace msftbot
                 if (msg.IsSuccessStatusCode)
                 {
                     var JsonDataResponse = await msg.Content.ReadAsStringAsync();
-                    Data = JsonConvert.DeserializeObject<DiningLUIS>(JsonDataResponse);
+                    Data = JsonConvert.DeserializeObject<Luis>(JsonDataResponse);
                 }
             }
 

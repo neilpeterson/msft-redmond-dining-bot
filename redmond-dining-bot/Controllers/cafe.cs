@@ -1,6 +1,6 @@
 ﻿namespace msftbot
 {
-    public class cafe
+    public class Cafe
     {
         public int CafeId { get; set; }
         public string CafeName { get; set; }
