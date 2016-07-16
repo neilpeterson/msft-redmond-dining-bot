@@ -3,6 +3,7 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -119,25 +120,20 @@ namespace msftbot
             DateTime day = DateTime.Now;
             int today = (int)day.DayOfWeek;
 
+            Dictionary<int, string> dayofweek = new Dictionary<int, string>();
+            dayofweek.Add(1, "MON");
+            dayofweek.Add(2, "TUE");
+            dayofweek.Add(3, "WED");
+            dayofweek.Add(4, "THU");
+            dayofweek.Add(5, "FRI");
+
             // String menu - empty string will be populating from json response.
             string menu = string.Empty;
 
-            // Get authentication token from authentication.cs
-            diningauth auth = new diningauth();            
-            string authtoken = await auth.GetAuthHeader();
-
-            // Get menu from refdinign API
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-
             try
-            {
-                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-
-                // De-serialize response into list of objects with type cafe (menu.cs).
-                List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
+            {            
+                string text = File.ReadAllText("C:\\Users\\neilp\\Desktop\\redmond-dining-bot\\redmond-dining-bot\\" + location + ".json");
+                List <menudays> list = JsonConvert.DeserializeObject<List<menudays>>(text);
 
                 menu += "#[Cafe " + location + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café " + location + ")" + "\n\n";
 
@@ -148,13 +144,18 @@ namespace msftbot
 
                     foreach (var item2 in item.CafeItems)
                     {
-                        menu += "- " + item2.Name + "\n\n";
+                        foreach (var item3 in item2.WeekDays)
+                        {
+                            if (item3 == dayofweek[today])
+                            {
+                                menu += "- " + item2.Name + "\n\n";
+                            }
+                        }
                     }
                 }
             }
             catch
             {
-                // Friendly message vs. 404 for a more ‘conversational’ like response. 
                 menu += "Menu not found.";
             }
 
