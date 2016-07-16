@@ -1,8 +1,11 @@
 ﻿using DiningLUISNS;
 using Microsoft.Bot.Connector;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -31,12 +34,12 @@ namespace msftbot
                     switch (diLUIS.intents[0].intent)
                     {
                         case "find-food": //find-food is an intent from LUIS
-                            diningoption = await GetDining(diLUIS.entities[0].entity);
+                            diningoption = await GetCafeByItem(diLUIS.entities[0].entity);
                             break;
 
                         // change this back to GetMenu if test does not work out
                         case "get-menu": //find-food is an intent from LUIS
-                            diningoption = await GetMenuDay(diLUIS.entities[0].entity);
+                            diningoption = await GetCafeMenuByDay(diLUIS.entities[0].entity);
                             break;
 
                         default:
@@ -61,13 +64,13 @@ namespace msftbot
             return response;
         }
 
-        private async Task<string> GetDining(string dining)
+        private async Task<string> GetCafeByItem(string dining)
         {
             // String café - empty string will be populating from json response.
             string cafe = string.Empty;
 
             // Get authentication token from authentication.cs
-            diningauth auth = new diningauth();
+            authentication auth = new authentication();
             string authtoken = await auth.GetAuthHeader();
 
             // Get cafe from refdinign API
@@ -90,7 +93,7 @@ namespace msftbot
             return cafe;
         }
 
-        private async Task<string> GetMenuDay(string location)
+        private async Task<string> GetCafeMenuByDay(string location)
         {
 
             // Building id dictionary – not all buildings have logical building id’s 
@@ -119,26 +122,33 @@ namespace msftbot
             DateTime day = DateTime.Now;
             int today = (int)day.DayOfWeek;
 
+            Dictionary<int, string> dayofweek = new Dictionary<int, string>();
+            dayofweek.Add(1, "MON");
+            dayofweek.Add(2, "TUE");
+            dayofweek.Add(3, "WED");
+            dayofweek.Add(4, "THU");
+            dayofweek.Add(5, "FRI");
+            dayofweek.Add(6, "FRI");
+            dayofweek.Add(7, "FRI");
+
             // String menu - empty string will be populating from json response.
             string menu = string.Empty;
 
-            // Get authentication token from authentication.cs
-            diningauth auth = new diningauth();            
-            string authtoken = await auth.GetAuthHeader();
-
-            // Get menu from refdinign API
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-
             try
             {
-                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
+                // Retrieves JSON from Azure blob
+                string blobconnection = ConfigurationManager.AppSettings["azureblob"];
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobconnection);
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                CloudBlobContainer container = blobClient.GetContainerReference("diningjson");
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(location + ".json");
+                string text = blockBlob.DownloadText();                
 
-                // De-serialize response into list of objects with type cafe (menu.cs).
-                List<menudays> list = JsonConvert.DeserializeObject<List<menudays>>(responseBody);
+                // De-serialize response into list of objects with type cafe (menu-days.cs).
+                List<menu> list = JsonConvert.DeserializeObject<List<menu>>(text);
 
+
+                // Create menu header 	
                 menu += "#[Cafe " + location + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café " + location + ")" + "\n\n";
 
                 // Populate string with menu item description. 
@@ -148,17 +158,21 @@ namespace msftbot
 
                     foreach (var item2 in item.CafeItems)
                     {
-                        menu += "- " + item2.Name + "\n\n";
+                        foreach (var item3 in item2.WeekDays)
+                        {
+                            if (item3 == dayofweek[today])
+                            {
+                                menu += "- " + item2.Name + "\n\n";
+                            }
+                        }
                     }
                 }
             }
             catch
             {
-                // Friendly message vs. 404 for a more ‘conversational’ like response. 
                 menu += "Menu not found.";
             }
 
-            // Return list
             return menu;
         }
 

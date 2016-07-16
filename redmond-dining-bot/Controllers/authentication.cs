@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace msftbot
 {
-    public class diningauth
+    public class authentication
     {
         const string clientId = "7c2daad8-1ced-485e-bfdb-eb04627160bd";
         const string key = "fQkYK02KyeePuCozpj7hmiB7udHS7tJmFR5x309BdT8=";
