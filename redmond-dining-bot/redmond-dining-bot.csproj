@@ -134,10 +134,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\authentication.cs" />
-    <Compile Include="Controllers\cafe.cs" />
-    <Compile Include="Controllers\luis.cs" />
-    <Compile Include="Controllers\menu-days.cs" />
+    <Compile Include="Controllers\Authentication.cs" />
+    <Compile Include="Controllers\Cafe.cs" />
+    <Compile Include="Controllers\Luis.cs" />
+    <Compile Include="Controllers\CafeMenu.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

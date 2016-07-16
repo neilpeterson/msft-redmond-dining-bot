@@ -1,6 +1,6 @@
 ﻿namespace DiningLUISNS
 {
-    public class DiningLUIS
+    public class Luis
     {
         public string query { get; set; }
         public Intent[] intents { get; set; }

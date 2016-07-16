@@ -1,7 +1,6 @@
 ﻿namespace msftbot
 {
-
-    public class menudays
+    public class CafeMenu
     {
         public string Name { get; set; }
         public Cafeitem[] CafeItems { get; set; }
