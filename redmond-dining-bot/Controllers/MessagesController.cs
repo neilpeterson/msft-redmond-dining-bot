@@ -1,10 +1,10 @@
 ﻿using DiningLUISNS;
 using Microsoft.Bot.Connector;
-using Microsoft.Bot.Connector.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -15,14 +15,17 @@ namespace msftbot
     [BotAuthentication]
     public class MessagesController : ApiController
     {
-        public async Task<Message> Post([FromBody]Message message)
+        public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            if (message.Type == "Message")
+            if (activity.Type == "message")
             {
+                // This is new to V3
+                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
+                #region LUIS
                 string diningoption;
-                DiningLUIS diLUIS = await GetEntityFromLUIS(message.Text);
-
+                DiningLUIS diLUIS = await GetEntityFromLUIS(activity.Text);
+                
                 if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
                 {
                     switch (diLUIS.intents[0].intent)
@@ -45,14 +48,17 @@ namespace msftbot
                 {
                     diningoption = "Sorry, I am not getting you...";
                 }
+                #endregion               
 
-                return message.CreateReplyMessage(diningoption);
+                Activity reply = activity.CreateReply(diningoption);
+                await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
             {
-                HandleSystemMessage(message);
-                return message;
+                HandleSystemMessage(activity);
             }
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            return response;
         }
 
         private async Task<string> GetDining(string dining)
@@ -175,33 +181,29 @@ namespace msftbot
             return Data;
         }
 
-        private Message HandleSystemMessage(Message message)
+        private Activity HandleSystemMessage(Activity message)
         {
-            if (message.Type == "Ping")
-            {
-                Message reply = message.CreateReplyMessage();
-                reply.Type = "Ping";
-                return reply;
-            }
-            else if (message.Type == "DeleteUserData")
+            if (message.Type == ActivityTypes.DeleteUserData)
             {
                 // Implement user deletion here
                 // If we handle user deletion, return a real message
             }
-            else if (message.Type == "BotAddedToConversation")
+            else if (message.Type == ActivityTypes.ConversationUpdate)
             {
-                return message.CreateReplyMessage("This is a test message...");
+                // Handle conversation state changes, like members being added and removed
+                // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
+                // Not available in all channels
             }
-            else if (message.Type == "BotRemovedFromConversation")
+            else if (message.Type == ActivityTypes.ContactRelationUpdate)
             {
+                // Handle add/remove from contact lists
+                // Activity.From + Activity.Action represent what happened
             }
-            else if (message.Type == "UserAddedToConversation")
+            else if (message.Type == ActivityTypes.Typing)
             {
+                // Handle knowing tha the user is typing
             }
-            else if (message.Type == "UserRemovedFromConversation")
-            {
-            }
-            else if (message.Type == "EndOfConversation")
+            else if (message.Type == ActivityTypes.Ping)
             {
             }
 
