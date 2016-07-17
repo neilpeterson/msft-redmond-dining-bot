@@ -30,6 +30,10 @@ namespace msftbot
                 {
                     switch (diLUIS.intents[0].intent)
                     {
+                        case "list-all-cafe": //find-food is an intent from LUIS
+                            diningoption = await ListAllCafe();
+                            break;
+
                         case "find-food": //find-food is an intent from LUIS
                             diningoption = await GetCafe(diLUIS.entities[0].entity);
                             break;
@@ -59,6 +63,32 @@ namespace msftbot
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
+        }
+
+        private async Task<string> ListAllCafe()
+        {
+            // Get authentication token from authentication.cs
+            Authentication auth = new Authentication();
+            string authtoken = await auth.GetAuthHeader();
+
+            // Get all cafes from refdinign API
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
+
+            string allcafe = string.Empty;
+
+            foreach (var item in list)
+            {
+                allcafe += "[" + item.CafeName + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=" + item.CafeName + ")" + "\n\n";
+            }
+
+            // Return list
+            return allcafe;
         }
 
         private async Task<string> GetCafe(string dining)
