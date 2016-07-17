@@ -15,6 +15,5 @@
         public int BuildingId { get; set; }
         public string PictureURL { get; set; }
         public bool EspressoAvailable { get; set; }
-
     }
 }
