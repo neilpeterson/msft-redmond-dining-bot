@@ -3,6 +3,7 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -30,8 +31,12 @@ namespace msftbot
                 {
                     switch (diLUIS.intents[0].intent)
                     {
+                        case "list-all-cafe": //find-food is an intent from LUIS
+                            diningoption = await GetAllCafes();
+                            break;
+
                         case "find-food": //find-food is an intent from LUIS
-                            diningoption = await GetCafe(diLUIS.entities[0].entity);
+                            diningoption = await GetCafeForItem(diLUIS.entities[0].entity);
                             break;
 
                         // change this back to GetMenu if test does not work out
@@ -61,10 +66,37 @@ namespace msftbot
             return response;
         }
 
-        private async Task<string> GetCafe(string dining)
+        private async Task<string> GetAllCafes()
+        {
+            // Get authentication token from authentication.cs
+            Authentication auth = new Authentication();
+            string authtoken = await auth.GetAuthHeader();
+
+            // Get JSON – List of all Cafes
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            // Convert JSON to list
+            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
+
+            // Format list
+            string allcafes = string.Empty;
+            foreach (var item in allCafeList)
+            {
+                allcafes += "[" + item.CafeName + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=" + item.CafeName + ")" + "\n\n";
+            }
+
+            // Return list
+            return allcafes;
+        }
+
+        private async Task<string> GetCafeForItem(string dining)
         {
             // String café - empty string will be populating from json response.
-            string cafe = string.Empty;
+            string cafe = string.Empty;            
 
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
@@ -92,28 +124,32 @@ namespace msftbot
 
         private async Task<string> GetCafeMenu(string location)
         {
+            
+            // Get authentication token from authentication.cs
+            Authentication auth = new Authentication();
+            string authtoken = await auth.GetAuthHeader();
 
-            // Building id dictionary – not all buildings have logical building id’s 
-            Dictionary<string, string> buildingid = new Dictionary<string, string>();
-            buildingid.Add("4", "4");
-            buildingid.Add("9", "8");
-            buildingid.Add("10", "8");
-            buildingid.Add("22", "21"); //not found
-            buildingid.Add("25", "22"); //not found
-            buildingid.Add("26", "24");
-            buildingid.Add("31", "197");
-            buildingid.Add("Studio X", "233"); //not found
-            buildingid.Add("50", "350");
-            buildingid.Add("113", "355"); //not found
-            buildingid.Add("112", "358");
-            buildingid.Add("16", "436");
-            buildingid.Add("17", "436");
-            buildingid.Add("18", "436");
-            buildingid.Add("42", "438");
-            buildingid.Add("43", "438");
-            buildingid.Add("44", "438");
-            buildingid.Add("SAMM-D", "473"); //not found
-            buildingid.Add("92", "100128"); //not found
+            // Get JSON – List of all Cafes
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+            HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
+            ResponseAllCafe.EnsureSuccessStatusCode();
+            string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
+
+            // Convert JSON to list
+            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
+
+            var buildingid =
+                from n in allCafeList
+                where n.CafeName.Equals(location, StringComparison.OrdinalIgnoreCase)
+                select n;
+
+            string newid = string.Empty;
+
+            foreach (Cafe item in buildingid)
+            {
+                newid = item.BuildingId.ToString();
+            }
 
             // Get the day of the week (1 – 5) for use in API URI. 
             DateTime day = DateTime.Now;
@@ -122,26 +158,21 @@ namespace msftbot
             // String menu - empty string will be populating from json response.
             string menu = string.Empty;
 
-            // Get authentication token from authentication.cs
-            Authentication auth = new Authentication();            
-            string authtoken = await auth.GetAuthHeader();
-
-            // Get menu from refdinign API
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-
             try
             {
-                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + buildingid[location] + "/weekday/" + today);
+
+                //Get JSON – Cafe menu
+                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + newid + "/weekday/" + today);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-                // De-serialize response into list of objects with type cafe (menu.cs).
+                // Convert JSON to list
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
+                // Format header – URL to café menu of dining site
                 menu += "#[Cafe " + location + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café " + location + ")" + "\n\n";
 
-                // Populate string with menu item description. 
+                // Populate string with menu item description - convert to LINQ query
                 foreach (var item in list)
                 {
                     menu += "**" + item.Name + "** \n\n";
@@ -154,7 +185,6 @@ namespace msftbot
             }
             catch
             {
-                // Friendly message vs. 404 for a more ‘conversational’ like response. 
                 menu += "Menu not found.";
             }
 
