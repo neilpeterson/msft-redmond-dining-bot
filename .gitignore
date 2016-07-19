@@ -1,1 +1,11 @@
 nepeters.txt
+
+# Build results 
+10 [Dd]ebug/ 
+11 [Dd]ebugPublic/ 
+12 [Rr]elease/ 
+13 x64/ 
+14 build/ 
+15 bld/ 
+16 [Bb]in/ 
+17 [Oo]bj/ 
