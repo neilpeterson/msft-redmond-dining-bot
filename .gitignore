@@ -1,11 +1,11 @@
 nepeters.txt
 
-# Build results 
-10 [Dd]ebug/ 
-11 [Dd]ebugPublic/ 
-12 [Rr]elease/ 
-13 x64/ 
-14 build/ 
-15 bld/ 
-16 [Bb]in/ 
-17 [Oo]bj/ 
+# Build results
+redmond-dining-bot/[Dd]ebug/ 
+redmond-dining-bot/[Dd]ebugPublic/ 
+redmond-dining-bot/[Rr]elease/ 
+redmond-dining-bot/x64/ 
+redmond-dining-bot/build/ 
+redmond-dining-bot/bld/ 
+redmond-dining-bot/[Bb]in/ 
+redmond-dining-bot/[Oo]bj/ 
