@@ -125,6 +125,20 @@ namespace msftbot
 
         private async Task<string> GetCafeMenu(string location)
         {
+            //do this first to avoid lots of extra processing.
+            // Get the day of the week (1 – 5) for use in API URI. 
+            DateTime day = DateTime.Now;
+            int today = (int)day.DayOfWeek;
+
+            // String menu - empty string will be populating from json response.
+            StringBuilder menu = new StringBuilder();
+            
+            if ((day.DayOfWeek == DayOfWeek.Saturday) || (day.DayOfWeek == DayOfWeek.Sunday))
+            {
+                menu.AppendLine("Cafes are not open on the weekend. Sorry!");
+                return menu.ToString();
+            }
+
 
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
@@ -156,17 +170,14 @@ namespace msftbot
                 newid = item.BuildingId.ToString();
             }
 
-            // Get the day of the week (1 – 5) for use in API URI. 
-            DateTime day = DateTime.Now;
-            int today = (int)day.DayOfWeek;
-
-            // String menu - empty string will be populating from json response.
-            StringBuilder menu = new StringBuilder();
-
             try
             {
+
                 //Get JSON – Cafe menu
-                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + newid + "/weekday/" + today);
+                HttpResponseMessage response =
+                    await
+                        httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" +
+                                            newid + "/weekday/" + today);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
@@ -174,20 +185,23 @@ namespace msftbot
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
                 // Format header – URL to café menu of dining site
-                menu.AppendFormat("#[{0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}", location, Environment.NewLine);
+                menu.AppendFormat(
+                    "#[{0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}",
+                    location, Environment.NewLine);
 
                 // Populate string with menu item description - convert to LINQ query
-                list.ForEach(i => {
-                    menu.AppendFormat("**{0}**{1}{1}", i.Name, Environment.NewLine);
-                    i.CafeItems.ToList().ForEach(ci => menu.AppendFormat("- {0}{1}{1}", ci.Name, Environment.NewLine));
-                });
+                list.ForEach(i =>
+                             {
+                                 menu.AppendFormat("**{0}**{1}{1}", i.Name, Environment.NewLine);
+                                 i.CafeItems.ToList()
+                                  .ForEach(ci => menu.AppendFormat("- {0}{1}{1}", ci.Name, Environment.NewLine));
+                             });
 
             }
             catch
             {
                 menu.AppendLine("Menu not found.");
             }
-
             // Return list
             return menu.ToString();
         }
