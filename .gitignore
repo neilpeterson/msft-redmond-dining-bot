@@ -8,4 +8,11 @@ redmond-dining-bot/x64/
 redmond-dining-bot/build/ 
 redmond-dining-bot/bld/ 
 redmond-dining-bot/[Bb]in/ 
-redmond-dining-bot/[Oo]bj/ 
+redmond-dining-bot/[Oo]bj/
+
+# User-specific files 
+5 *.suo 
+6 *.user 
+7 *.userosscache 
+8 *.sln.docstates 
+
