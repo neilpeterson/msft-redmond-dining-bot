@@ -17,8 +17,15 @@ namespace msftbot
     [BotAuthentication]
     public class MessagesController : ApiController
     {
+        #region Shuttle Variables
+        static bool ContextCallShuttle = false;
+        static string Destination = String.Empty;
+        static string Origin = String.Empty;
+        #endregion
+
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
+            
             if (activity.Type == "message")
             {
                 // This is new to V3
@@ -29,38 +36,64 @@ namespace msftbot
                 await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
-                string diningoption;
+                string BotResponse = String.Empty;
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
 
-                if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
+                if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() == 0)
                 {
+                    //Handle intents without entities
+                    if (ContextCallShuttle)
+                    {
+                        switch (diLUIS.intents[0].intent)
+                        {
+                            case "yes":
+                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination+".";
+                                ResetShuttleVariables();
+                                break;
+                            case "no":
+                                BotResponse = "I'm sorry, let's start over then. What do you want me to do?";
+                                ResetShuttleVariables();
+                                break;
+                            default:
+                                BotResponse = "Sorry, I can't understand you...";
+                                break;
+                        }
+                    }
+                }
+
+                else if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
+                {
+                    //Handle intents with entities
                     switch (diLUIS.intents[0].intent)
                     {
                         case "list-all-cafe": //find-food is an intent from LUIS
-                            diningoption = await GetAllCafes();
+                            BotResponse = await GetAllCafes();
                             break;
 
                         case "find-food": //find-food is an intent from LUIS
-                            diningoption = await GetCafeForItem(diLUIS.entities[0].entity);
+                            BotResponse = await GetCafeForItem(diLUIS.entities[0].entity);
                             break;
 
                         // change this back to GetMenu if test does not work out
                         case "find-menu": //find-food is an intent from LUIS
-                            diningoption = await GetCafeMenu(diLUIS.entities[0].entity);
+                            BotResponse = await GetCafeMenu(diLUIS.entities[0].entity);
                             break;
 
+                        case "schedule shuttle":
+                            BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
+                            break;
                         default:
-                            diningoption = "Sorry, I am not getting you...";
+                            BotResponse = "Sorry, I can't understand you...";
                             break;
                     }
                 }
                 else
                 {
-                    diningoption = "Sorry, I am not getting you...";
+                    BotResponse = "Sorry, I am not getting you...";
                 }
                 #endregion               
 
-                reply = activity.CreateReply(diningoption);
+                reply = activity.CreateReply(BotResponse);
                 await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
@@ -69,6 +102,27 @@ namespace msftbot
             }
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
+            return response;
+        }
+
+        private void ResetShuttleVariables()
+        {
+            ContextCallShuttle = false;
+            Destination = String.Empty;
+            Origin = String.Empty;
+            return;
+        }
+
+        private async Task<string> SetShuttleRequest(string arg_destination, string arg_origin)
+        {
+            string response = string.Empty;
+            //set context variables
+            System.Diagnostics.Debug.Assert((Destination == String.Empty) && (Origin == String.Empty) && (!ContextCallShuttle)); //assert that these variables are reset
+            ContextCallShuttle = true;
+            Destination = arg_destination;
+            Origin = arg_origin;
+
+            response = "Shall I schedule a shuttle for you from building "+Origin+" to "+Destination+"?";
             return response;
         }
 
