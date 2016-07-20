@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -23,10 +24,16 @@ namespace msftbot
                 // This is new to V3
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
+                //quick response
+                Activity reply = activity.CreateReply("Working on your request now!");
+                await connector.Conversations.ReplyToActivityAsync(reply);
+
+
+
                 #region LUIS
                 string diningoption;
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
-                
+
                 if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
                 {
                     switch (diLUIS.intents[0].intent)
@@ -55,13 +62,14 @@ namespace msftbot
                 }
                 #endregion               
 
-                Activity reply = activity.CreateReply(diningoption);
+                reply = activity.CreateReply(diningoption);
                 await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
             {
                 HandleSystemMessage(activity);
             }
+
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
@@ -96,7 +104,7 @@ namespace msftbot
         private async Task<string> GetCafeForItem(string dining)
         {
             // String café - empty string will be populating from json response.
-            string cafe = string.Empty;            
+            string cafe = string.Empty;
 
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
@@ -104,18 +112,18 @@ namespace msftbot
 
             // Get cafe from refdinign API
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);                        
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
             // De-serialize response into list of objects with type cafe (cafe.cs). 
             List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
-            
+
             // Populate string with cafe’s. 
             foreach (var item in list)
             {
-                cafe += item.CafeName + "\n\n";                
+                cafe += item.CafeName + "\n\n";
             }
 
             // Return list
@@ -124,7 +132,7 @@ namespace msftbot
 
         private async Task<string> GetCafeMenu(string location)
         {
-            
+
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
@@ -156,7 +164,7 @@ namespace msftbot
             int today = (int)day.DayOfWeek;
 
             // String menu - empty string will be populating from json response.
-            string menu = string.Empty;
+            StringBuilder menu = new StringBuilder();
 
             try
             {
@@ -170,26 +178,22 @@ namespace msftbot
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
                 // Format header – URL to café menu of dining site
-                menu += "#[Cafe " + location + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café " + location + ")" + "\n\n";
+                menu.AppendFormat("#[Cafe {0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}", location, Environment.NewLine);
 
                 // Populate string with menu item description - convert to LINQ query
-                foreach (var item in list)
-                {
-                    menu += "**" + item.Name + "** \n\n";
+                list.ForEach(i => {
+                    menu.AppendFormat("**{0}**{1}{1}", i.Name, Environment.NewLine);
+                    i.CafeItems.ToList().ForEach(ci => menu.AppendFormat("- {0}{1}{1}", ci.Name, Environment.NewLine));
+                });
 
-                    foreach (var item2 in item.CafeItems)
-                    {
-                        menu += "- " + item2.Name + "\n\n";
-                    }
-                }
             }
             catch
             {
-                menu += "Menu not found.";
+                menu.AppendLine("Menu not found.");
             }
 
             // Return list
-            return menu;
+            return menu.ToString();
         }
 
         private async Task<Luis> GetEntityFromLUIS(string Query)
