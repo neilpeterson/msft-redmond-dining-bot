@@ -28,8 +28,6 @@ namespace msftbot
                 Activity reply = activity.CreateReply("Working on your request now!");
                 await connector.Conversations.ReplyToActivityAsync(reply);
 
-
-
                 #region LUIS
                 string diningoption;
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
@@ -91,43 +89,38 @@ namespace msftbot
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
 
             // Format list
-            string allcafes = string.Empty;
-            foreach (var item in allCafeList)
-            {
-                allcafes += "[" + item.CafeName + "](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=" + item.CafeName + ")" + "\n\n";
-            }
+            StringBuilder allcafes = new StringBuilder();
+            allCafeList.ForEach(i => {
+                allcafes.AppendFormat("[{0}]({1}{0}){2}{2}", i.CafeName, "https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=", Environment.NewLine);
+            });
 
-            // Return list
-            return allcafes;
+            return allcafes.ToString();
         }
 
         private async Task<string> GetCafeForItem(string dining)
-        {
-            // String café - empty string will be populating from json response.
-            string cafe = string.Empty;
-
+        {        
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
 
-            // Get cafe from refdinign API
+            // Get JSON – List of all Cafe serving the requested item
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
-            // De-serialize response into list of objects with type cafe (cafe.cs). 
+            // Convert JSON to list
             List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
 
-            // Populate string with cafe’s. 
-            foreach (var item in list)
+            // Format list
+            StringBuilder cafe = new StringBuilder();
+            list.ForEach(i =>
             {
-                cafe += item.CafeName + "\n\n";
-            }
-
-            // Return list
-            return cafe;
+                cafe.AppendFormat("[{0}]({1}{0}){2}{2}", i.CafeName, "https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=", Environment.NewLine);
+            });
+            
+            return cafe.ToString();
         }
 
         private async Task<string> GetCafeMenu(string location)
@@ -146,6 +139,10 @@ namespace msftbot
 
             // Convert JSON to list
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
+
+            if (location.Contains("building")){
+                location = location.Replace("building", "cafe");
+            }
 
             var buildingid =
                 from n in allCafeList
@@ -168,7 +165,6 @@ namespace msftbot
 
             try
             {
-
                 //Get JSON – Cafe menu
                 HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + newid + "/weekday/" + today);
                 response.EnsureSuccessStatusCode();
@@ -178,7 +174,7 @@ namespace msftbot
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
                 // Format header – URL to café menu of dining site
-                menu.AppendFormat("#[Cafe {0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}", location, Environment.NewLine);
+                menu.AppendFormat("#[{0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}", location, Environment.NewLine);
 
                 // Populate string with menu item description - convert to LINQ query
                 list.ForEach(i => {
