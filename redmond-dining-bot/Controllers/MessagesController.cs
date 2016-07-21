@@ -3,7 +3,6 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,7 +27,6 @@ namespace msftbot
             
             if (activity.Type == "message")
             {
-                // This is new to V3
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
                 //quick response
@@ -263,10 +261,7 @@ namespace msftbot
             {
 
                 //Get JSON – Cafe menu
-                HttpResponseMessage response =
-                    await
-                        httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" +
-                                            newid + "/weekday/" + today);
+                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + newid + "/weekday/" + today);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
@@ -274,17 +269,14 @@ namespace msftbot
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
                 // Format header – URL to café menu of dining site
-                menu.AppendFormat(
-                    "#[{0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}",
-                    location, Environment.NewLine);
+                menu.AppendFormat("#[{0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}", location, Environment.NewLine);
 
                 // Populate string with menu item description - convert to LINQ query
                 list.ForEach(i =>
-                             {
-                                 menu.AppendFormat("**{0}**{1}{1}", i.Name, Environment.NewLine);
-                                 i.CafeItems.ToList()
-                                  .ForEach(ci => menu.AppendFormat("- {0}{1}{1}", ci.Name, Environment.NewLine));
-                             });
+                {
+                    menu.AppendFormat("**{0}**{1}{1}", i.Name, Environment.NewLine);
+                    i.CafeItems.ToList().ForEach(ci => menu.AppendFormat("- {0}{1}{1}", ci.Name, Environment.NewLine));
+                });
 
             }
             catch
