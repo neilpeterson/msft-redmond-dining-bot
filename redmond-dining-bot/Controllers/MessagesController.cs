@@ -91,7 +91,7 @@ namespace msftbot
                             break;
 
                         case "schedule shuttle":
-                            if (diLUIS.entities.Count() == 2)
+                            if (diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")
                             {
                                 BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
                             }
