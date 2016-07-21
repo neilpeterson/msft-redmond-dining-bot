@@ -36,29 +36,40 @@ namespace msftbot
                 await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
-                string BotResponse = String.Empty;
+                string BotResponse = "Sorry. Can you repeat?";
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
 
                 if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() == 0)
                 {
                     //Handle intents without entities
-                    if (ContextCallShuttle)
-                    {
-                        switch (diLUIS.intents[0].intent)
-                        {
-                            case "yes":
-                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination+".";
+                    
+                   switch (diLUIS.intents[0].intent)
+                   {
+                      case "yes":
+                            if (ContextCallShuttle)
+                            {
+                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination + ".";
                                 ResetShuttleVariables();
-                                break;
-                            case "no":
+                            }
+                            break;
+
+                      case "no":
+                            if (ContextCallShuttle)
+                            {
                                 BotResponse = "I'm sorry, let's start over then. What do you want me to do?";
                                 ResetShuttleVariables();
-                                break;
-                            default:
-                                BotResponse = "Sorry, I can't understand you...";
-                                break;
+                            }
+                            break;
+
+                      case "schedule shuttle":
+                            BotResponse = "I need to know where to pick you up and drop you off. Please state from where to where do you need the shuttle";
+                            break;
+
+                     default:
+                            BotResponse = "Sorry, I can't understand you...";
+                            break;
                         }
-                    }
+                    
                 }
 
                 else if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
@@ -80,7 +91,29 @@ namespace msftbot
                             break;
 
                         case "schedule shuttle":
-                            BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
+                            if (diLUIS.entities.Count() == 2)
+                            {
+                                BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
+                            }
+                            else
+                            {
+                                //bot ask user to clearly state from where do you want me to take you and to where. 
+                                if (diLUIS.entities[0].type == "Destination Building")
+                                {
+                                    //if destination given
+                                    BotResponse = "I need to know where to pick you up. Can you state from where to where do you need the shuttle?";
+                                }
+                                else if (diLUIS.entities[0].type == "Origin Building")
+                                {
+                                    //if origin given
+                                    BotResponse = "I need to know where to drop you off. Can you state from where to where do you need the shuttle?";
+                                }
+                                else
+                                {
+                                    //if nothing given
+                                }
+
+                            }
                             break;
                         default:
                             BotResponse = "Sorry, I can't understand you...";
@@ -116,8 +149,10 @@ namespace msftbot
         private async Task<string> SetShuttleRequest(string arg_destination, string arg_origin)
         {
             string response = string.Empty;
+            //assert that these variables are reset
+            System.Diagnostics.Debug.Assert((Destination == String.Empty) && (Origin == String.Empty) && (!ContextCallShuttle));
+
             //set context variables
-            System.Diagnostics.Debug.Assert((Destination == String.Empty) && (Origin == String.Empty) && (!ContextCallShuttle)); //assert that these variables are reset
             ContextCallShuttle = true;
             Destination = arg_destination;
             Origin = arg_origin;
