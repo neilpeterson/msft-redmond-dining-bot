@@ -89,7 +89,7 @@ namespace msftbot
                         case "yes":
                             if (ContextCallShuttle && diLUIS.entities.Count() == 0)
                             {
-                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination + ".";
+                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination + ". Your Confirmation Number is "+ RandomNumber(10000, 99999)+".";
                                 ResetShuttleVariables();
                             }
                             break;
@@ -131,6 +131,12 @@ namespace msftbot
             Destination = String.Empty;
             Origin = String.Empty;
             return;
+        }
+
+        private int RandomNumber(int min, int max)
+        {
+            Random random = new Random();
+            return random.Next(min, max);
         }
 
         private async Task<string> SetShuttleRequest(string arg_destination, string arg_origin)
