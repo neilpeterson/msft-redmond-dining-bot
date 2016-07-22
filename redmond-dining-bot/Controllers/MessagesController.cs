@@ -34,7 +34,7 @@ namespace msftbot
                 await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
-                string BotResponse = "Sorry. Can you repeat?";
+                string BotResponse = "Sorry. I don't understand what you are saying.";
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
 
                 if (diLUIS.intents.Count() > 0)
@@ -60,7 +60,7 @@ namespace msftbot
                         case "schedule shuttle":
                             if (diLUIS.entities.Count() == 0) //"get me a shuttle"
                                 BotResponse = "I need to know where to pick you up and drop you off. Please state from where to where do you need the shuttle";
-                            else if (!(diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")) 
+                            else if ((diLUIS.entities.Count() == 1) ||(!(diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")))
                             {
                                 //bot ask user to clearly state from where do you want me to take you and to where. 
                                 if (diLUIS.entities[0].type == "Destination Building")
@@ -77,12 +77,13 @@ namespace msftbot
                                 {
                                     //if nothing given
                                 }
-
                             }
                             else if (diLUIS.entities.Count() > 0 && diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")
                             {
                                 BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
                             }
+                            else
+                                BotResponse = "I think you wanted a shuttle, but I'm not sure. Let's start over. What do you want me to do?";
                             break;
 
                         case "yes":
@@ -102,7 +103,7 @@ namespace msftbot
                             break;
 
                         default:
-                            BotResponse = "Sorry, I can't understand you...";
+                            BotResponse = "Sorry, I can't understand your intent.";
                             break;
                     }
                 }
