@@ -107,6 +107,16 @@ namespace msftbot.Controllers.Messages
                             }
                             break;
 
+                        case "help":
+                            if (diLUIS.entities.Count() == 0)
+                            {
+                                BotResponse = "I'm RefBot and I'm here to help you get food and get around campus. Try the following commands:" + Environment.NewLine + Environment.NewLine +
+                                    " \"Show me all cafes.\"," + Environment.NewLine + Environment.NewLine +
+                                    "\"What can I eat in cafe 16? \"," + Environment.NewLine + Environment.NewLine +
+                                    "\"Where can I find pizza?\", " + Environment.NewLine + Environment.NewLine +
+                                    " \"get me from building 1 to 92\" ";
+                            }
+                            break;
                         default:
                             BotResponse = "Sorry, I can't understand your intent.";
                             break;
