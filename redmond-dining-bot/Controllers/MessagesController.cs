@@ -238,8 +238,14 @@ namespace msftbot.Controllers.Messages
             // Convert JSON to list
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
 
+            //Formatting for API call
             if (location.Contains(Constants.buildingEntity)){
                 location = location.Replace(Constants.buildingEntity, Constants.cafeEntity);
+            }
+            if (!location.Contains("cafe"))
+            {
+                // if no cafe already in location add "cafe". Explicitely calling this out to handle location = "36"
+                location = "cafe " + location;
             }
 
             var buildingid =
