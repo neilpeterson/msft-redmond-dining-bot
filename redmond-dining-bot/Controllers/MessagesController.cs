@@ -10,8 +10,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using msftbot;
 using msftbot.Controllers;
 using msftbot.Support;
+using Microsoft.Bot.Builder.Dialogs;
 
 namespace msftbot.Controllers.Messages
 {
@@ -22,6 +24,7 @@ namespace msftbot.Controllers.Messages
         static bool ContextCallShuttle = false;
         static string Destination = String.Empty;
         static string Origin = String.Empty;
+        CafeActions CafeAction = new CafeActions();
         #endregion
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
@@ -36,30 +39,30 @@ namespace msftbot.Controllers.Messages
                 await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
-                string BotResponse = "Sorry. I don't understand what you are saying.";
+                string BotResponse = Constants.doNotUnderstandDialogue;
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
 
                 if (diLUIS.intents.Count() > 0)
                 {                    
                     switch (diLUIS.intents[0].intent)
                     {
-                        case "list-all-cafe": //find-food is an intent from LUIS
+                        case Constants.listCafeIntent: //find-food is an intent from LUIS
                             if (diLUIS.entities.Count() > 0) //Expect entities
-                                BotResponse = await GetAllCafes();
+                                BotResponse = await CafeAction.GetAllCafes();
                             break;
 
-                        case "find-food": //find-food is an intent from LUIS
+                        case Constants.findFoodIntent: //find-food is an intent from LUIS
                             if (diLUIS.entities.Count() > 0) //Expect entities
-                                BotResponse = await GetCafeForItem(diLUIS.entities[0].entity);
+                                BotResponse = await CafeAction.GetCafeForItem(diLUIS.entities[0].entity);
                             break;
 
                         // change this back to GetMenu if test does not work out
-                        case "find-menu": //find-food is an intent from LUIS
+                        case Constants.findMenuIntent: //find-food is an intent from LUIS
                             if (diLUIS.entities.Count() > 0) //Expect entities
-                                BotResponse = await GetCafeMenu(diLUIS.entities[0].entity);
+                                BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity);
                             break;
 
-                        case "schedule shuttle":
+                        case Constants.scheduleShuttleIntent:
                             if (diLUIS.entities.Count() == 0) //"get me a shuttle"
                                 BotResponse = "I need to know where to pick you up and drop you off. Please state from where to where do you need the shuttle";
                             else if ((diLUIS.entities.Count() == 1) ||(!(diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")))
@@ -155,148 +158,14 @@ namespace msftbot.Controllers.Messages
             response = string.Format(Constants.scheudleShuttleDialogue,Origin,Destination);
             return response;
         }
-
-        private async Task<string> GetAllCafes()
-        {
-            // Get authentication token from authentication.cs
-            Authentication auth = new Authentication();
-            string authtoken = await auth.GetAuthHeader();
-
-            // Get JSON – List of all Cafes
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
-            HttpResponseMessage response = await httpClient.GetAsync(Constants.listAllCafeNames);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-
-            // Convert JSON to list
-            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
-
-            // Format list
-            StringBuilder allcafes = new StringBuilder();
-            allCafeList.ForEach(i => {
-                allcafes.AppendFormat(Constants.cafeListFormat, i.CafeName, Constants.singleCafeMenuApi, Environment.NewLine);
-            });
-
-            return allcafes.ToString();
-        }
-
-        private async Task<string> GetCafeForItem(string dining)
-        {        
-            // Get authentication token from authentication.cs
-            Authentication auth = new Authentication();
-            string authtoken = await auth.GetAuthHeader();
-
-            // Get JSON – List of all Cafe serving the requested item
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
-            HttpResponseMessage response = await httpClient.GetAsync(string.Format(Constants.listCafesServingItem, dining));
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-
-            // Convert JSON to list
-            List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
-
-            // Format list
-            StringBuilder cafe = new StringBuilder();
-            list.ForEach(i =>
-            {
-                cafe.AppendFormat(Constants.cafeListFormat, i.CafeName, Constants.singleCafeMenuApi, Environment.NewLine);
-            });
-            
-            return cafe.ToString();
-        }
-
-        private async Task<string> GetCafeMenu(string location)
-        {
-            //do this first to avoid lots of extra processing.
-            // Get the day of the week (1 – 5) for use in API URI. 
-            DateTime day = DateTime.Now;
-            int today = (int)day.DayOfWeek;
-
-            // String menu - empty string will be populating from json response.
-            StringBuilder menu = new StringBuilder();
-            
-            if ((day.DayOfWeek == DayOfWeek.Saturday) || (day.DayOfWeek == DayOfWeek.Sunday))
-            {
-                menu.AppendLine(Constants.cafeNotOpenWeekendDialogue);
-                return menu.ToString();
-            }
-
-
-            // Get authentication token from authentication.cs
-            Authentication auth = new Authentication();
-            string authtoken = await auth.GetAuthHeader();
-
-            // Get JSON – List of all Cafes
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
-            HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync(Constants.listAllCafeNames);
-            ResponseAllCafe.EnsureSuccessStatusCode();
-            string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
-
-            // Convert JSON to list
-            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
-
-            //Formatting for API call
-            if (location.Contains(Constants.buildingEntity)){
-                location = location.Replace(Constants.buildingEntity, Constants.cafeEntity);
-            }
-            if (!location.Contains("cafe"))
-            {
-                // if no cafe already in location add "cafe". Explicitely calling this out to handle location = "36"
-                location = "cafe " + location;
-            }
-
-            var buildingid =
-                from n in allCafeList
-                where n.CafeName.Equals(location, StringComparison.OrdinalIgnoreCase)
-                select n;
-
-            string newid = string.Empty;
-
-            foreach (Cafe item in buildingid)
-            {
-                newid = item.BuildingId.ToString();
-            }
-
-            try
-            {
-
-                //Get JSON – Cafe menu
-                HttpResponseMessage response = await httpClient.GetAsync(string.Format(Constants.listCafeMenu,newid,today));
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-
-                // Convert JSON to list
-                List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
-
-                // Format header – URL to café menu of dining site
-                menu.AppendFormat("#[{0}]({1}{0}){2}{2}", location, Constants.dinningMenuWebsiteUrl, Environment.NewLine);
-
-                // Populate string with menu item description - convert to LINQ query
-                list.ForEach(i =>
-                {
-                    menu.AppendFormat(Constants.menuItemLocationFormat, i.Name, Environment.NewLine);
-                    i.CafeItems.ToList().ForEach(ci => menu.AppendFormat(Constants.menuItemTypeFormat, ci.Name, Environment.NewLine));
-                });
-
-            }
-            catch
-            {
-                menu.AppendLine(Constants.noMenuFoundDialogue);
-            }
-            // Return list
-            return menu.ToString();
-        }
-
+       
         private async Task<Luis> GetEntityFromLUIS(string Query)
         {
             Query = Uri.EscapeDataString(Query);
             Luis Data = new Luis();
             using (HttpClient client = new HttpClient())
             {
-                string RequestURI = "https://api.projectoxford.ai/luis/v1/application?id=f11f7c0a-e4b1-47a3-9842-e825dc6b9922&subscription-key=daaf89e73e87447a9d5c45e24c23dbde&q=" + Query;
+                string RequestURI = string.Format(Constants.luisCallApi,Query);
                 HttpResponseMessage msg = await client.GetAsync(RequestURI);
 
                 if (msg.IsSuccessStatusCode)
