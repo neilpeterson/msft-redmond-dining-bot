@@ -9,6 +9,7 @@ redmond-dining-bot/build/
 redmond-dining-bot/bld/ 
 redmond-dining-bot/[Bb]in/ 
 redmond-dining-bot/[Oo]bj/
+.vs/
 
 # User-specific files 
 5 *.suo 

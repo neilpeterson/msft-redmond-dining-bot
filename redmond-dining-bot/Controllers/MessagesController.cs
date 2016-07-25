@@ -10,8 +10,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using msftbot.Controllers;
+using msftbot.Support;
 
-namespace msftbot
+namespace msftbot.Controllers.Messages
 {
     [BotAuthentication]
     public class MessagesController : ApiController
@@ -25,12 +27,12 @@ namespace msftbot
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             
-            if (activity.Type == "message")
+            if (activity.Type == Constants.messageActivityType)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
                 //quick response
-                Activity reply = activity.CreateReply("Working on your request now!");
+                Activity reply = activity.CreateReply(Constants.workingDialogue);
                 await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
@@ -150,7 +152,7 @@ namespace msftbot
             Destination = arg_destination;
             Origin = arg_origin;
 
-            response = "Shall I schedule a shuttle for you from building "+Origin+" to "+Destination+"?";
+            response = string.Format(Constants.scheudleShuttleDialogue,Origin,Destination);
             return response;
         }
 
@@ -162,8 +164,8 @@ namespace msftbot
 
             // Get JSON – List of all Cafes
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
+            HttpResponseMessage response = await httpClient.GetAsync(Constants.listAllCafeNames);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
@@ -173,7 +175,7 @@ namespace msftbot
             // Format list
             StringBuilder allcafes = new StringBuilder();
             allCafeList.ForEach(i => {
-                allcafes.AppendFormat("[{0}]({1}{0}){2}{2}", i.CafeName, "https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=", Environment.NewLine);
+                allcafes.AppendFormat(Constants.cafeListFormat, i.CafeName, Constants.singleCafeMenuApi, Environment.NewLine);
             });
 
             return allcafes.ToString();
@@ -187,8 +189,8 @@ namespace msftbot
 
             // Get JSON – List of all Cafe serving the requested item
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
+            HttpResponseMessage response = await httpClient.GetAsync(string.Format(Constants.listCafesServingItem, dining));
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
@@ -199,7 +201,7 @@ namespace msftbot
             StringBuilder cafe = new StringBuilder();
             list.ForEach(i =>
             {
-                cafe.AppendFormat("[{0}]({1}{0}){2}{2}", i.CafeName, "https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=", Environment.NewLine);
+                cafe.AppendFormat(Constants.cafeListFormat, i.CafeName, Constants.singleCafeMenuApi, Environment.NewLine);
             });
             
             return cafe.ToString();
@@ -217,7 +219,7 @@ namespace msftbot
             
             if ((day.DayOfWeek == DayOfWeek.Saturday) || (day.DayOfWeek == DayOfWeek.Sunday))
             {
-                menu.AppendLine("Cafes are not open on the weekend. Sorry!");
+                menu.AppendLine(Constants.cafeNotOpenWeekendDialogue);
                 return menu.ToString();
             }
 
@@ -228,16 +230,22 @@ namespace msftbot
 
             // Get JSON – List of all Cafes
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-            HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
+            HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync(Constants.listAllCafeNames);
             ResponseAllCafe.EnsureSuccessStatusCode();
             string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
 
             // Convert JSON to list
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
 
-            if (location.Contains("building")){
-                location = location.Replace("building", "cafe");
+            //Formatting for API call
+            if (location.Contains(Constants.buildingEntity)){
+                location = location.Replace(Constants.buildingEntity, Constants.cafeEntity);
+            }
+            if (!location.Contains("cafe"))
+            {
+                // if no cafe already in location add "cafe". Explicitely calling this out to handle location = "36"
+                location = "cafe " + location;
             }
 
             var buildingid =
@@ -256,7 +264,7 @@ namespace msftbot
             {
 
                 //Get JSON – Cafe menu
-                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/menus/building/" + newid + "/weekday/" + today);
+                HttpResponseMessage response = await httpClient.GetAsync(string.Format(Constants.listCafeMenu,newid,today));
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
@@ -264,19 +272,19 @@ namespace msftbot
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
                 // Format header – URL to café menu of dining site
-                menu.AppendFormat("#[{0}](https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=Café{0}){1}{1}", location, Environment.NewLine);
+                menu.AppendFormat("#[{0}]({1}{0}){2}{2}", location, Constants.dinningMenuWebsiteUrl, Environment.NewLine);
 
                 // Populate string with menu item description - convert to LINQ query
                 list.ForEach(i =>
                 {
-                    menu.AppendFormat("**{0}**{1}{1}", i.Name, Environment.NewLine);
-                    i.CafeItems.ToList().ForEach(ci => menu.AppendFormat("- {0}{1}{1}", ci.Name, Environment.NewLine));
+                    menu.AppendFormat(Constants.menuItemLocationFormat, i.Name, Environment.NewLine);
+                    i.CafeItems.ToList().ForEach(ci => menu.AppendFormat(Constants.menuItemTypeFormat, ci.Name, Environment.NewLine));
                 });
 
             }
             catch
             {
-                menu.AppendLine("Menu not found.");
+                menu.AppendLine(Constants.noMenuFoundDialogue);
             }
             // Return list
             return menu.ToString();
