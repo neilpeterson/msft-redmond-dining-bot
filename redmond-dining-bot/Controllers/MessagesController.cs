@@ -25,6 +25,7 @@ namespace msftbot.Controllers.Messages
         static string Destination = String.Empty;
         static string Origin = String.Empty;
         CafeActions CafeAction = new CafeActions();
+        ShuttleActions ShuttleAction = new ShuttleActions();
         #endregion
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
@@ -85,7 +86,10 @@ namespace msftbot.Controllers.Messages
                             }
                             else if (diLUIS.entities.Count() > 0 && diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")
                             {
-                                BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
+                                if(await ShuttleAction.SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity))
+                                {
+                                    BotResponse = string.Format("Shuttle has been booked from {0} to {1}", diLUIS.entities[1].entity, diLUIS.entities[0].entity);
+                                }
                             }
                             else
                                 BotResponse = "I think you wanted a shuttle, but I'm not sure. Let's start over. What do you want me to do?";
