@@ -34,66 +34,33 @@ namespace msftbot
                 await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
-                string BotResponse = "Sorry. Can you repeat?";
+                string BotResponse = "Sorry. I don't understand what you are saying.";
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
 
-                if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() == 0)
-                {
-                    //Handle intents without entities
-                    
-                   switch (diLUIS.intents[0].intent)
-                   {
-                      case "yes":
-                            if (ContextCallShuttle)
-                            {
-                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination + ".";
-                                ResetShuttleVariables();
-                            }
-                            break;
-
-                      case "no":
-                            if (ContextCallShuttle)
-                            {
-                                BotResponse = "I'm sorry, let's start over then. What do you want me to do?";
-                                ResetShuttleVariables();
-                            }
-                            break;
-
-                      case "schedule shuttle":
-                            BotResponse = "I need to know where to pick you up and drop you off. Please state from where to where do you need the shuttle";
-                            break;
-
-                     default:
-                            BotResponse = "Sorry, I can't understand you...";
-                            break;
-                        }
-                    
-                }
-
-                else if (diLUIS.intents.Count() > 0 && diLUIS.entities.Count() > 0)
-                {
-                    //Handle intents with entities
+                if (diLUIS.intents.Count() > 0)
+                {                    
                     switch (diLUIS.intents[0].intent)
                     {
                         case "list-all-cafe": //find-food is an intent from LUIS
-                            BotResponse = await GetAllCafes();
+                            if (diLUIS.entities.Count() > 0) //Expect entities
+                                BotResponse = await GetAllCafes();
                             break;
 
                         case "find-food": //find-food is an intent from LUIS
-                            BotResponse = await GetCafeForItem(diLUIS.entities[0].entity);
+                            if (diLUIS.entities.Count() > 0) //Expect entities
+                                BotResponse = await GetCafeForItem(diLUIS.entities[0].entity);
                             break;
 
                         // change this back to GetMenu if test does not work out
                         case "find-menu": //find-food is an intent from LUIS
-                            BotResponse = await GetCafeMenu(diLUIS.entities[0].entity);
+                            if (diLUIS.entities.Count() > 0) //Expect entities
+                                BotResponse = await GetCafeMenu(diLUIS.entities[0].entity);
                             break;
 
                         case "schedule shuttle":
-                            if (diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")
-                            {
-                                BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
-                            }
-                            else
+                            if (diLUIS.entities.Count() == 0) //"get me a shuttle"
+                                BotResponse = "I need to know where to pick you up and drop you off. Please state from where to where do you need the shuttle";
+                            else if ((diLUIS.entities.Count() == 1) ||(!(diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")))
                             {
                                 //bot ask user to clearly state from where do you want me to take you and to where. 
                                 if (diLUIS.entities[0].type == "Destination Building")
@@ -110,11 +77,33 @@ namespace msftbot
                                 {
                                     //if nothing given
                                 }
+                            }
+                            else if (diLUIS.entities.Count() > 0 && diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")
+                            {
+                                BotResponse = await SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity);
+                            }
+                            else
+                                BotResponse = "I think you wanted a shuttle, but I'm not sure. Let's start over. What do you want me to do?";
+                            break;
 
+                        case "yes":
+                            if (ContextCallShuttle && diLUIS.entities.Count() == 0)
+                            {
+                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination + ". Your Confirmation Number is "+ RandomNumber(10000, 99999)+".";
+                                ResetShuttleVariables();
                             }
                             break;
+
+                        case "no":
+                            if (ContextCallShuttle && diLUIS.entities.Count() == 0)
+                            {
+                                BotResponse = "I'm sorry, let's start over then. What do you want me to do?";
+                                ResetShuttleVariables();
+                            }
+                            break;
+
                         default:
-                            BotResponse = "Sorry, I can't understand you...";
+                            BotResponse = "Sorry, I can't understand your intent.";
                             break;
                     }
                 }
@@ -142,6 +131,12 @@ namespace msftbot
             Destination = String.Empty;
             Origin = String.Empty;
             return;
+        }
+
+        private int RandomNumber(int min, int max)
+        {
+            Random random = new Random();
+            return random.Next(min, max);
         }
 
         private async Task<string> SetShuttleRequest(string arg_destination, string arg_origin)
