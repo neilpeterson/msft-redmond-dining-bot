@@ -10,6 +10,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+//Diagnostics
+using System.Diagnostics;
 
 namespace msftbot
 {
@@ -22,13 +24,49 @@ namespace msftbot
         static string Origin = String.Empty;
         #endregion
 
+        Stopwatch stopwatch = new Stopwatch();
+
+        #region HTTP Variables
+        Authentication auth = new Authentication();
+        HttpClient httpClient = new HttpClient();
+
+        #endregion
+
+        MessagesController()
+        {
+            Debug.WriteLine("Constructor called! Calling HTTP client set up");            
+            Task.Run(() => this.HttpClientSetUp()).Wait();            
+            Debug.WriteLine("Time elapsed after HTTP client init and auth: {0}", stopwatch.Elapsed);
+        }
+
+        private async Task<bool> HttpClientSetUp()
+        {
+            bool status;
+
+           try {
+                // Get authentication token from authentication.cs
+                string authtoken = await auth.GetAuthHeader();
+                // Get JSON – List of all Cafe serving the requested item
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+                status = true;
+            }
+            catch
+            {
+                
+                status = false;
+            }
+            Debug.WriteLine("HTTP client init and auth success: "+status);
+            return status;
+        }
+
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             
             if (activity.Type == "message")
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-
+stopwatch.Start();
+Debug.WriteLine("Time elapsed at start: {0}", stopwatch.Elapsed);
                 //quick response
                 Activity reply = activity.CreateReply("Working on your request now!");
                 await connector.Conversations.ReplyToActivityAsync(reply);
@@ -36,7 +74,7 @@ namespace msftbot
                 #region LUIS
                 string BotResponse = "Sorry. I don't understand what you are saying.";
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
-
+Debug.WriteLine("Time elapsed after LUIS: {0}", stopwatch.Elapsed);
                 if (diLUIS.intents.Count() > 0)
                 {                    
                     switch (diLUIS.intents[0].intent)
@@ -49,12 +87,14 @@ namespace msftbot
                         case "find-food": //find-food is an intent from LUIS
                             if (diLUIS.entities.Count() > 0) //Expect entities
                                 BotResponse = await GetCafeForItem(diLUIS.entities[0].entity);
+                            Debug.WriteLine("Time elapsed after find food: {0}", stopwatch.Elapsed);
                             break;
 
                         // change this back to GetMenu if test does not work out
                         case "find-menu": //find-food is an intent from LUIS
                             if (diLUIS.entities.Count() > 0) //Expect entities
                                 BotResponse = await GetCafeMenu(diLUIS.entities[0].entity);
+                            Debug.WriteLine("Time elapsed after find menu: {0}", stopwatch.Elapsed);
                             break;
 
                         case "schedule shuttle":
@@ -156,6 +196,8 @@ namespace msftbot
 
         private async Task<string> GetAllCafes()
         {
+            #region authentication
+            /*
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
@@ -163,6 +205,9 @@ namespace msftbot
             // Get JSON – List of all Cafes
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+            */
+            #endregion
+
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -180,7 +225,9 @@ namespace msftbot
         }
 
         private async Task<string> GetCafeForItem(string dining)
-        {        
+        {
+            #region authentication
+            /*
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
@@ -188,20 +235,24 @@ namespace msftbot
             // Get JSON – List of all Cafe serving the requested item
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+            Debug.WriteLine("Time elapsed after HTTP client init and auth: {0}", stopwatch.Elapsed);
+            */
+            #endregion
+
             HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafe/Name/" + dining);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
             // Convert JSON to list
             List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
-
+Debug.WriteLine("Time elapsed after REST call and JsonConvert: {0}", stopwatch.Elapsed);
             // Format list
             StringBuilder cafe = new StringBuilder();
             list.ForEach(i =>
             {
                 cafe.AppendFormat("[{0}]({1}{0}){2}{2}", i.CafeName, "https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=", Environment.NewLine);
             });
-            
+
             return cafe.ToString();
         }
 
@@ -221,21 +272,26 @@ namespace msftbot
                 return menu.ToString();
             }
 
+            #region authentication
 
-            // Get authentication token from authentication.cs
-            Authentication auth = new Authentication();
-            string authtoken = await auth.GetAuthHeader();
+            /*
+                        // Get authentication token from authentication.cs
+                        Authentication auth = new Authentication();
+                        string authtoken = await auth.GetAuthHeader();
 
-            // Get JSON – List of all Cafes
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+                        // Get JSON – List of all Cafes
+                        HttpClient httpClient = new HttpClient();
+                        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+            */
+            #endregion
+
             HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
             ResponseAllCafe.EnsureSuccessStatusCode();
             string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
 
             // Convert JSON to list
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
-
+Debug.WriteLine("Time elapsed after REST call and JsonConvert: {0}", stopwatch.Elapsed);
             if (location.Contains("building")){
                 location = location.Replace("building", "cafe");
             }
@@ -318,6 +374,7 @@ namespace msftbot
             {
                 // Handle add/remove from contact lists
                 // Activity.From + Activity.Action represent what happened
+
             }
             else if (message.Type == ActivityTypes.Typing)
             {
