@@ -103,7 +103,6 @@ namespace msftbot.Controllers.Messages
                             break;
 
                         case Constants.scheduleShuttleIntent:
-
                             //set variables for shuttles.
                             if (diLUIS.entities.Any(e => e.type == "Destination Building"))
                             {
@@ -118,7 +117,6 @@ namespace msftbot.Controllers.Messages
                             SetConversationToOngoingActivity(stateClient,userData,activity,"bookShuttle");
                             
                             BotResponse = "Starting to book a shuttle.";
-                            
                             break;
 
                         case "help":
@@ -149,7 +147,7 @@ namespace msftbot.Controllers.Messages
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
-
+        
         private void ContinueActivity(ConnectorClient connector, StateClient stateClient, Activity activity, BotData userData)
         {
             string activityType = userData.GetProperty<string>("ActivityType");
