@@ -139,29 +139,39 @@ namespace msftbot
             return cafe.ToString();
         }
 
-        internal async Task<string> GetCafeMenu(string location)
+        internal async Task<string> GetCafeMenu(string location, string DayOfWeekFromLuis)
         {
-
 #if DEBUG
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
 #endif
 
-            //do this first to avoid lots of extra processing.
-            // Get the day of the week (1 – 5) for use in API URI. 
-            DateTime day = DateTime.Now;
-            int today = (int)day.DayOfWeek;
-
             // String menu - empty string will be populating from json response.
             StringBuilder menu = new StringBuilder();
-            //Adding conversation text
-            menu.Append("Here is what I found for " + location + "." + Environment.NewLine + Environment.NewLine);
+            int today;
 
-            if ((day.DayOfWeek == DayOfWeek.Saturday) || (day.DayOfWeek == DayOfWeek.Sunday))
+            // Get the day of the week (1 – 5) for use in API URI. Also catch weekend and post response.
+            if (DayOfWeekFromLuis == "today")
             {
-                menu.AppendLine(Constants.cafeNotOpenWeekendDialogue);
-                return menu.ToString();
+                DateTime day = DateTime.Now;
+                today = (int)day.DayOfWeek;
+
+                if ((day.DayOfWeek == DayOfWeek.Saturday) || (day.DayOfWeek == DayOfWeek.Sunday))
+                {
+                    menu.AppendLine("Cafes are not open on the weekend. Sorry!");
+                    return menu.ToString();
+                }
+            }
+            else
+            {
+                Dictionary<string, int> dayofweekdict = new Dictionary<string, int>();
+                dayofweekdict.Add("monday", 1);
+                dayofweekdict.Add("tuesday", 2);
+                dayofweekdict.Add("wednesday", 3);
+                dayofweekdict.Add("thursday", 4);
+                dayofweekdict.Add("friday", 5);
+                today = dayofweekdict[DayOfWeekFromLuis];
             }
 
 

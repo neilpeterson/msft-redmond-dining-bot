@@ -121,16 +121,17 @@ namespace msftbot.Controllers.Messages
 
                         // change this back to GetMenu if test does not work out
                         case Constants.findMenuIntent: //find-food is an intent from LUIS
-                            SetConversationToOngoingActivity(stateClient, userData, activity,"findMenu");
-                            if (diLUIS.entities.Count() > 0) //Expect entities
+                            SetConversationToOngoingActivity(stateClient, userData, activity, "findMenu");
+
+                            if (diLUIS.entities.Any(e => e.type == "Day of Week") && diLUIS.entities.Any(e => e.type == "Cafe Name"))
                             {
-                                #region DEBUG
-                                Debug.WriteLine("MC cafe look up - Time elapsed at start: {0}", stopwatch.Elapsed);
-                                #endregion
-                                Activity quickReply = activity.CreateReply("Gathering menus from " + diLUIS.entities[0].entity);
-                                //await connector.Conversations.ReplyToActivityAsync();
-                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous 
-                                BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity);
+                                string dayOfWeek = diLUIS.entities.Single(e => e.type == "Day of Week").entity;
+                                string cafeName = diLUIS.entities.Single(e => e.type == "Cafe Name").entity;
+                                BotResponse = await CafeAction.GetCafeMenu(cafeName, dayOfWeek);
+                            }
+                            else
+                            {
+                                BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity, "today");
                             }
                             break;
 
