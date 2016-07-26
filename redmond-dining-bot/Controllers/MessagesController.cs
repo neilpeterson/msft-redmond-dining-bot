@@ -48,7 +48,7 @@ namespace msftbot.Controllers.Messages
 
                 //quick response
                 Activity reply = activity.CreateReply(Constants.workingDialogue);
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                //await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
                 string BotResponse = Constants.doNotUnderstandDialogue;
@@ -84,6 +84,8 @@ namespace msftbot.Controllers.Messages
                                 #region DEBUG
                                 Debug.WriteLine("MC food look up - Time elapsed at start: {0}", stopwatch.Elapsed);
                                 #endregion
+                                Activity quickReply = activity.CreateReply("Searching for locations with " + diLUIS.entities[0].entity);
+                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
                                 BotResponse = await CafeAction.GetCafeForItem(diLUIS.entities[0].entity);
                             }
                             break;
@@ -95,6 +97,9 @@ namespace msftbot.Controllers.Messages
                                 #region DEBUG
                                 Debug.WriteLine("MC cafe look up - Time elapsed at start: {0}", stopwatch.Elapsed);
                                 #endregion
+                                Activity quickReply = activity.CreateReply("Gathering menus from " + diLUIS.entities[0].entity);
+                                //await connector.Conversations.ReplyToActivityAsync();
+                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous 
                                 BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity);
                             }
                             break;

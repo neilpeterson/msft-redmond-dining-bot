@@ -30,7 +30,7 @@ namespace msftbot.Support
         public const string workingDialogue = "Working on your request now!";
         public const string scheudleShuttleDialogue = "Shall I schedule a shuttle for you from building {0} to {1}?";
         public const string cafeNotOpenWeekendDialogue = "Cafes are not open on the weekend. Sorry!";
-        public const string noMenuFoundDialogue = "Menu not found.";
+        public const string noMenuFoundDialogue = "Sorry, no menu found for this location.";
         public const string doNotUnderstandDialogue = "Sorry. I don't understand what you are saying.";
 
         /// <summary>
