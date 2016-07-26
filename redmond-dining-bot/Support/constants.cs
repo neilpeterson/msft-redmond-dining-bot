@@ -17,16 +17,16 @@ namespace msftbot.Support
         public const string findFoodIntent = "find-food";
         public const string findMenuIntent = "find-menu";
         public const string scheduleShuttleIntent = "schedule shuttle";
-        
+
         /// <summary>
         /// Dialogue Strings
         /// </summary>
         public const string workingDialogue = "Working on your request now!";
         public const string scheudleShuttleDialogue = "Shall I schedule a shuttle for you from building {0} to {1}?";
         public const string cafeNotOpenWeekendDialogue = "Cafes are not open on the weekend. Sorry!";
-        public const string noMenuFoundDialogue = "Menu not found.";
+        public const string noMenuFoundDialogue = "Sorry, no menu found for this location.";
         public const string doNotUnderstandDialogue = "Sorry. I don't understand what you are saying.";
-        public const string helpDialogue = "I'm RefBot and I'm here to help you get food and get around campus. Try the following commands:{0}{0} \"Show me all cafes.\",{0}{0}" + 
+        public const string helpDialogue = "I'm RefBot and I'm here to help you get food and get around campus. Try the following commands:{0}{0} \"Show me all cafes.\",{0}{0}" +
             "\"What can I eat in cafe 16? \",{0}{0}\"Where can I find pizza?\",{0}{0}" +
             " \"get me from building 1 to 92\" ";
 
