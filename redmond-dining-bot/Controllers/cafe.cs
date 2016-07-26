@@ -27,6 +27,24 @@ namespace msftbot
         public bool EspressoAvailable { get; set; }
     }
 
+    public class CafeMenu
+    {
+        public string Name { get; set; }
+        public Cafeitem[] CafeItems { get; set; }
+        public int CafeId { get; set; }
+        public string CafeName { get; set; }
+        public int Id { get; set; }
+    }
+
+    public class Cafeitem
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Prices { get; set; }
+        public string[] WeekDays { get; set; }
+        public int Id { get; set; }
+    }
+
     internal class CafeActions
     {
         internal CafeActions()
@@ -40,19 +58,28 @@ namespace msftbot
 
             // Get JSON – List of all Cafes
             HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
-            HttpResponseMessage response = await httpClient.GetAsync(Constants.listAllCafeNames);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
             // Convert JSON to list
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
 
-            // Format list
+            // String for output
             StringBuilder allcafes = new StringBuilder();
-            allCafeList.ForEach(i => {
-                allcafes.AppendFormat(Constants.cafeListFormat, i.CafeName, Constants.singleCafeMenuApi, Environment.NewLine);
-            });
+
+            // Filter out any without 'Cafe' in the name
+            var cafe =
+                from n in allCafeList
+                where n.CafeName.Contains("Cafe ")
+                select n;
+
+            // Build output
+            foreach (Cafe item in cafe)
+            {
+                allcafes.AppendFormat("[{0}]({1}{0}){2}{2}", item.CafeName, "https://microsoft.sharepoint.com/sites/refweb/Pages/Dining-Menus.aspx?cafe=", Environment.NewLine);
+            }
 
             return allcafes.ToString();
         }
