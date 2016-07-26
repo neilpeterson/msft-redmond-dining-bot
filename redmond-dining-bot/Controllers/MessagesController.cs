@@ -42,13 +42,42 @@ namespace msftbot.Controllers.Messages
                 //For picking up from a shuttle booking in progress
                 StateClient stateClient = activity.GetStateClient();
                 BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
-                
-                //quick response
+                string BotResponse = Constants.doNotUnderstandDialogue;
                 Activity reply = activity.CreateReply(Constants.workingDialogue);
-                //await connector.Conversations.ReplyToActivityAsync(reply);
+
+                if (userData.GetProperty<bool>("OngoingActivity"))
+                {
+                    if(activity.Text.ToUpper() == "CANCEL")
+                    {
+                        EndConversationOngoingActivity(stateClient, userData, activity);
+                        BotResponse = "Ending current activity.";
+                        reply = activity.CreateReply(BotResponse);
+                        await connector.Conversations.ReplyToActivityAsync(reply);
+                        var endActivity = Request.CreateResponse(HttpStatusCode.OK);
+                        return endActivity;
+                    }
+                    else if (activity.Text.ToUpper() == "HELP")
+                    {
+                        BotResponse = string.Format("You are currently working on a {0} activity. Type 'cancel' to exit.",userData.GetProperty<string>("ActivityType"));
+                        reply = activity.CreateReply(BotResponse);
+                        await connector.Conversations.ReplyToActivityAsync(reply);
+                        var endActivity = Request.CreateResponse(HttpStatusCode.OK);
+                        return endActivity;
+                    }
+
+                    switch(userData.GetProperty<string>("ActivityType"))
+                    {
+                        case "bookShuttle":
+                            break;
+                    }
+
+                    ContinueActivity(connector, stateClient, activity, userData);
+                }
+
+                //quick response
+                await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
-                string BotResponse = Constants.doNotUnderstandDialogue;
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
 
                 if (diLUIS.intents.Count() > 0)
@@ -56,6 +85,7 @@ namespace msftbot.Controllers.Messages
                     switch (diLUIS.intents[0].intent)
                     {
                         case Constants.listFoodTruckIntent: //find-food is an intent from LUIS
+                            SetConversationToOngoingActivity(stateClient, userData, activity, "listFoodtruck");
                             if (diLUIS.entities.Count() > 0) //Expect entities
                             {
                                 #region DEBUG
@@ -66,7 +96,7 @@ namespace msftbot.Controllers.Messages
                             break;
 
                         case Constants.listCafeIntent: //find-food is an intent from LUIS
-                            SetConversationToOngoingActivity(stateClient, userData, activity);
+                            SetConversationToOngoingActivity(stateClient, userData, activity,"listCafe");
                             if (diLUIS.entities.Count() > 0) //Expect entities
                             { 
                                 #if DEBUG
@@ -77,7 +107,7 @@ namespace msftbot.Controllers.Messages
                             break;
 
                         case Constants.findFoodIntent: //find-food is an intent from LUIS
-                            SetConversationToOngoingActivity(stateClient, userData, activity);
+                            SetConversationToOngoingActivity(stateClient, userData, activity,"findFood");
                             if (diLUIS.entities.Count() > 0) //Expect entities
                             {
                                 #region DEBUG
@@ -91,7 +121,8 @@ namespace msftbot.Controllers.Messages
 
                         // change this back to GetMenu if test does not work out
                         case Constants.findMenuIntent: //find-food is an intent from LUIS
-                            SetConversationToOngoingActivity(stateClient, userData, activity);
+                            SetConversationToOngoingActivity(stateClient, userData, activity, "findMenu");
+
                             if (diLUIS.entities.Any(e => e.type == "Day of Week") && diLUIS.entities.Any(e => e.type == "Cafe Name"))
                             {
                                 string dayOfWeek = diLUIS.entities.Single(e => e.type == "Day of Week").entity;
@@ -105,11 +136,20 @@ namespace msftbot.Controllers.Messages
                             break;
 
                         case Constants.scheduleShuttleIntent:
+                            //set variables for shuttles.
+                            if (diLUIS.entities.Any(e => e.type == "Destination Building"))
+                            {
+                                userData.SetProperty<string>("DestinationBuilding", diLUIS.entities.Single(e => e.type == "Destination Building").type);
+                            }
+                            if (diLUIS.entities.Any(e => e.type == "Origin Building"))
+                            {
+                                userData.SetProperty<string>("OriginBuilding", diLUIS.entities.Single(e => e.type == "Origin Building").type);
+                            }
+
                             //Setting the state of the conversation to active session.
-                            SetConversationToOngoingActivity(stateClient,userData,activity);
+                            SetConversationToOngoingActivity(stateClient,userData,activity,"bookShuttle");
                             
                             BotResponse = "Starting to book a shuttle.";
-
                             break;
 
                         case "help":
@@ -145,10 +185,24 @@ namespace msftbot.Controllers.Messages
             return response;
         }
 
-        private async void SetConversationToOngoingActivity(StateClient state, BotData userData, Activity activity)
+        private void ContinueActivity(ConnectorClient connector, StateClient stateClient, Activity activity, BotData userData)
+        {
+            string activityType = userData.GetProperty<string>("ActivityType");
+            
+        }
+
+        private async void SetConversationToOngoingActivity(StateClient state, BotData userData, Activity activity, string activityType)
         {
             //Setting the state of the conversation to active session.
             userData.SetProperty<bool>("OngoingActivity", true);
+            userData.SetProperty<string>("ActivityType",activityType);
+            await state.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+        }
+
+        private async void EndConversationOngoingActivity(StateClient state, BotData userData, Activity activity)
+        {
+            //Setting the state of the conversation to active session.
+            userData.SetProperty<bool>("OngoingActivity", false);
             await state.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
         }
 

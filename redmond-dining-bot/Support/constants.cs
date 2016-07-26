@@ -28,6 +28,7 @@ namespace msftbot.Support
         public const string doNotUnderstandDialogue = "Sorry. I don't understand what you are saying.";
         public const string helpDialogue = "I'm RefBot and I'm here to help you get food and get around campus. Try the following commands:{0}{0} \"Show me all cafes.\",{0}{0}" +
             "\"What can I eat in cafe 16? \",{0}{0}\"Where can I find pizza?\",{0}{0}" +
+            "\"Find food trucks.\",{0}{0}" +
             " \"get me from building 1 to 92\" ";
 
         /// <summary>
