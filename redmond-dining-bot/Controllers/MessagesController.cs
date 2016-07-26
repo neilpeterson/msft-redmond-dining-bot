@@ -14,6 +14,7 @@ using msftbot;
 using msftbot.Controllers;
 using msftbot.Support;
 using Microsoft.Bot.Builder.Dialogs;
+using System.Diagnostics;
 
 namespace msftbot.Controllers.Messages
 {
@@ -29,12 +30,21 @@ namespace msftbot.Controllers.Messages
         FoodTruckActions FoodTruckAction = new FoodTruckActions();
         #endregion
 
+        #if DEBUG
+        public Stopwatch stopwatch = new Stopwatch();
+        #endif
+
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             
             if (activity.Type == Constants.messageActivityType)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+
+                #if DEBUG
+                stopwatch.Start();
+                Debug.WriteLine("MC Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+                #endif
 
                 //quick response
                 Activity reply = activity.CreateReply(Constants.workingDialogue);
@@ -48,25 +58,45 @@ namespace msftbot.Controllers.Messages
                 {                    
                     switch (diLUIS.intents[0].intent)
                     {
-                        case Constants.listFoodTruckIntent: //find-food is an intent from LUIS
+                        case Constants.listFoodTruckIntent: //"show me all food trucks"
                             if (diLUIS.entities.Count() > 0) //Expect entities
+                            {
+                                #region DEBUG
+                                Debug.WriteLine("MC food trucks - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endregion
                                 BotResponse = await FoodTruckAction.GetAllFoodTruck();
+                            }
                             break;
 
-                        case Constants.listCafeIntent: //find-food is an intent from LUIS
-                            if (diLUIS.entities.Count() > 0) //Expect entities
+                        case Constants.listCafeIntent: //"get all cafes"
+                            if (diLUIS.entities.Count() > 0)
+                            { //Expect entities
+                                #if DEBUG
+                                Debug.WriteLine("MC get all cafes - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endif
                                 BotResponse = await CafeAction.GetAllCafes();
+                            }
                             break;
 
-                        case Constants.findFoodIntent: //find-food is an intent from LUIS
-                            if (diLUIS.entities.Count() > 0) //Expect entities
+                        case Constants.findFoodIntent: //"where can i get pizza"
+                            if (diLUIS.entities.Count() > 0)
+                            { //Expect entities
+                                #region DEBUG
+                                Debug.WriteLine("MC food look up - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endregion
                                 BotResponse = await CafeAction.GetCafeForItem(diLUIS.entities[0].entity);
+                            }
                             break;
 
                         // change this back to GetMenu if test does not work out
-                        case Constants.findMenuIntent: //find-food is an intent from LUIS
-                            if (diLUIS.entities.Count() > 0) //Expect entities
+                        case Constants.findMenuIntent: //"what can i eat in building 16"
+                            if (diLUIS.entities.Count() > 0)
+                            { //Expect entities 
+                                #region DEBUG
+                                Debug.WriteLine("MC cafe look up - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endregion
                                 BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity);
+                            }
                             break;
 
                         case Constants.scheduleShuttleIntent:
@@ -137,7 +167,10 @@ namespace msftbot.Controllers.Messages
                 {
                     BotResponse = "Sorry, I am not getting you...";
                 }
-                #endregion               
+                #endregion
+                #region DEBUG
+                Debug.WriteLine("MC End region LUIS: {0}", stopwatch.Elapsed);
+                #endregion
 
                 reply = activity.CreateReply(BotResponse);
                 await connector.Conversations.ReplyToActivityAsync(reply);

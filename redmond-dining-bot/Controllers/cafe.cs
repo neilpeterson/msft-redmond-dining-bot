@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using msftbot.Support;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace msftbot
 {
@@ -52,6 +53,11 @@ namespace msftbot
 
         internal async Task<string> GetAllCafes()
         {
+            #if DEBUG
+                  Stopwatch stopwatch = new Stopwatch();
+                  stopwatch.Start();
+                  Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+            #endif
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
@@ -63,6 +69,9 @@ namespace msftbot
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
+            #region DEBUG
+            Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+            #endregion
             // Convert JSON to list
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
 
@@ -88,6 +97,11 @@ namespace msftbot
 
         internal async Task<string> GetCafeForItem(string dining)
         {
+            #if DEBUG
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+            #endif
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
@@ -98,6 +112,10 @@ namespace msftbot
             HttpResponseMessage response = await httpClient.GetAsync(string.Format(Constants.listCafesServingItem, dining));
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
+            
+            #region DEBUG
+            Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+            #endregion
 
             // Convert JSON to list
             List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
@@ -117,6 +135,13 @@ namespace msftbot
 
         internal async Task<string> GetCafeMenu(string location)
         {
+
+            #if DEBUG
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+            #endif
+
             //do this first to avoid lots of extra processing.
             // Get the day of the week (1 – 5) for use in API URI. 
             DateTime day = DateTime.Now;
@@ -144,6 +169,10 @@ namespace msftbot
             HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync(Constants.listAllCafeNames);
             ResponseAllCafe.EnsureSuccessStatusCode();
             string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
+            
+            #region DEBUG
+            Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+            #endregion
 
             // Convert JSON to list
             List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
@@ -156,7 +185,8 @@ namespace msftbot
             if (!location.Contains(Constants.cafeEntity))
             {
                 // if no cafe already in location add "cafe". Explicitely calling this out to handle location = "36"
-                location = Constants.cafeEntity + location;
+                //location = Constants.cafeEntity + location;
+                location = "cafe " + location;
             }
 
             var buildingid =
@@ -179,6 +209,10 @@ namespace msftbot
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
+                #region DEBUG
+                Debug.WriteLine("Cafe.cs get JSON #2 completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+                #endregion
+
                 // Convert JSON to list
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
@@ -197,6 +231,11 @@ namespace msftbot
             {
                 menu.AppendLine(Constants.noMenuFoundDialogue);
             }
+
+            #region DEBUG
+            Debug.WriteLine("Cafe.cs about to return list - Time elapsed at start: {0}", stopwatch.Elapsed);
+            stopwatch.Reset();
+            #endregion
             // Return list
             return menu.ToString();
         }
