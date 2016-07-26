@@ -111,6 +111,16 @@ namespace msftbot.Controllers.Messages
                             }
                             break;
 
+                        case "help":
+                            if (diLUIS.entities.Count() == 0)
+                            {
+                                BotResponse = "I'm RefBot and I'm here to help you get food and get around campus. Try the following commands:" + Environment.NewLine + Environment.NewLine +
+                                    " \"Show me all cafes.\"," + Environment.NewLine + Environment.NewLine +
+                                    "\"What can I eat in cafe 16? \"," + Environment.NewLine + Environment.NewLine +
+                                    "\"Where can I find pizza?\", " + Environment.NewLine + Environment.NewLine +
+                                    " \"get me from building 1 to 92\" ";
+                            }
+                            break;
                         default:
                             BotResponse = "Sorry, I can't understand your intent.";
                             break;
@@ -194,6 +204,11 @@ namespace msftbot.Controllers.Messages
                 // Handle conversation state changes, like members being added and removed
                 // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
                 // Not available in all channels
+                ConnectorClient connector = new ConnectorClient(new Uri(message.ServiceUrl));
+
+                Activity reply = message.CreateReply("Hello! I'm REFBot. Type help to see what I can do!");
+                connector.Conversations.ReplyToActivityAsync(reply);
+
             }
             else if (message.Type == ActivityTypes.ContactRelationUpdate)
             {
