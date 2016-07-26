@@ -139,6 +139,11 @@ namespace msftbot
             return cafe.ToString();
         }
 
+        bool CheckLocationInput (string location)
+        {
+            return (location.Contains(Constants.buildingEntity) || location.Contains(Constants.caféEntity));
+        }
+
         internal async Task<string> GetCafeMenu(string location)
         {
 
@@ -189,9 +194,10 @@ namespace msftbot
             }
 
             //Formatting for API call
-            if (location.Contains(Constants.buildingEntity))
+            if (CheckLocationInput(location))
             {
                 location = location.Replace(Constants.buildingEntity, Constants.cafeEntity);
+                location = location.Replace(Constants.caféEntity, Constants.cafeEntity);
             }
             if (!location.Contains(Constants.cafeEntity))
             {
