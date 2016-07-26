@@ -138,6 +138,7 @@
     <Compile Include="Controllers\Cafe.cs" />
     <Compile Include="Controllers\Luis.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="Controllers\Shuttle.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
