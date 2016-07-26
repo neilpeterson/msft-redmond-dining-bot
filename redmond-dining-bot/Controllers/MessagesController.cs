@@ -14,7 +14,8 @@ using msftbot;
 using msftbot.Controllers;
 using msftbot.Support;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Builder.FormFlow;
+using System.Diagnostics;
+
 
 namespace msftbot.Controllers.Messages
 {
@@ -25,6 +26,10 @@ namespace msftbot.Controllers.Messages
         ShuttleActions ShuttleAction = new ShuttleActions();
         FoodTruckActions FoodTruckAction = new FoodTruckActions();
 
+        #if DEBUG
+        public Stopwatch stopwatch = new Stopwatch();
+        #endif
+
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             
@@ -32,13 +37,19 @@ namespace msftbot.Controllers.Messages
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
+
+                #if DEBUG
+                stopwatch.Start();
+                Debug.WriteLine("MC Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+                #endif
+
                 //For picking up from a shuttle booking in progress
                 StateClient stateClient = activity.GetStateClient();
                 BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
                 
                 //quick response
                 Activity reply = activity.CreateReply(Constants.workingDialogue);
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                //await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
                 string BotResponse = Constants.doNotUnderstandDialogue;
@@ -48,36 +59,58 @@ namespace msftbot.Controllers.Messages
                 {                    
                     switch (diLUIS.intents[0].intent)
                     {
-                        case Constants.listFoodTruckIntent: //find-food is an intent from LUIS
+                        case Constants.listFoodTruckIntent: //"show me all food trucks"
                             if (diLUIS.entities.Count() > 0) //Expect entities
+                            {
+                                #region DEBUG
+                                Debug.WriteLine("MC food trucks - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endregion
                                 BotResponse = await FoodTruckAction.GetAllFoodTruck();
+                            }
                             break;
 
                         case Constants.listCafeIntent: //find-food is an intent from LUIS
                             SetConversationToOngoingActivity(stateClient, userData, activity);
                             if (diLUIS.entities.Count() > 0) //Expect entities
+                                #if DEBUG
+                                Debug.WriteLine("MC get all cafes - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endif
                                 BotResponse = await CafeAction.GetAllCafes();
+                            }
                             break;
 
                         case Constants.findFoodIntent: //find-food is an intent from LUIS
                             SetConversationToOngoingActivity(stateClient, userData, activity);
                             if (diLUIS.entities.Count() > 0) //Expect entities
+                            { 
+                                #region DEBUG
+                                Debug.WriteLine("MC food look up - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endregion
+                                Activity quickReply = activity.CreateReply("Searching for locations with " + diLUIS.entities[0].entity);
+                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
                                 BotResponse = await CafeAction.GetCafeForItem(diLUIS.entities[0].entity);
+                            }
                             break;
 
                         // change this back to GetMenu if test does not work out
                         case Constants.findMenuIntent: //find-food is an intent from LUIS
                             SetConversationToOngoingActivity(stateClient, userData, activity);
                             if (diLUIS.entities.Count() > 0) //Expect entities
+                            { 
+                                #region DEBUG
+                                Debug.WriteLine("MC cafe look up - Time elapsed at start: {0}", stopwatch.Elapsed);
+                                #endregion
+                                Activity quickReply = activity.CreateReply("Gathering menus from " + diLUIS.entities[0].entity);
+                                //await connector.Conversations.ReplyToActivityAsync();
+                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous 
                                 BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity);
+                            }
                             break;
 
                         case Constants.scheduleShuttleIntent:
                             //Setting the state of the conversation to active session.
-                            SetConversationToOngoingActivity(stateClient,userData,activity);
-                            
+                            SetConversationToOngoingActivity(stateClient,userData,activity);                            
                             BotResponse = "Starting to book a shuttle.";
-
                             break;
 
                         case "help":
@@ -95,7 +128,10 @@ namespace msftbot.Controllers.Messages
                 {
                     BotResponse = "Sorry, I am not getting you..." + Environment.NewLine + string.Format(Constants.helpDialogue, Environment.NewLine); ;
                 }
-                #endregion               
+                #endregion
+                #region DEBUG
+                Debug.WriteLine("MC End region LUIS: {0}", stopwatch.Elapsed);
+                #endregion
 
                 reply = activity.CreateReply(BotResponse);
                 await connector.Conversations.ReplyToActivityAsync(reply);
