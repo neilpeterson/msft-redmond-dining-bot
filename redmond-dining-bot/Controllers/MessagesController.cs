@@ -204,6 +204,11 @@ namespace msftbot.Controllers.Messages
                 // Handle conversation state changes, like members being added and removed
                 // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
                 // Not available in all channels
+                ConnectorClient connector = new ConnectorClient(new Uri(message.ServiceUrl));
+
+                Activity reply = message.CreateReply("Hello! I'm REFBot. Type help to see what I can do!");
+                connector.Conversations.ReplyToActivityAsync(reply);
+
             }
             else if (message.Type == ActivityTypes.ContactRelationUpdate)
             {
