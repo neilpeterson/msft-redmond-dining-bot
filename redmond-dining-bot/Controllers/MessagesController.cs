@@ -45,7 +45,7 @@ namespace msftbot.Controllers.Messages
                 
                 //quick response
                 Activity reply = activity.CreateReply(Constants.workingDialogue);
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                //await connector.Conversations.ReplyToActivityAsync(reply);
 
                 #region LUIS
                 string BotResponse = Constants.doNotUnderstandDialogue;
