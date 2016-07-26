@@ -136,6 +136,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Authentication.cs" />
     <Compile Include="Controllers\Cafe.cs" />
+    <Compile Include="Controllers\FoodTruck.cs" />
     <Compile Include="Controllers\Luis.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\Shuttle.cs" />

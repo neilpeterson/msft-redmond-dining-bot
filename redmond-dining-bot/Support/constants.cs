@@ -18,6 +18,7 @@ namespace msftbot.Support
         public const string buildingEntity = "building";
         public const string cafeEntity = "cafe";
         public const string listCafeIntent = "list-all-cafe";
+        public const string listFoodTruckIntent = "food-truck";
         public const string findFoodIntent = "find-food";
         public const string findMenuIntent = "find-menu";
         public const string scheduleShuttleIntent = "schedule shuttle";
@@ -39,6 +40,7 @@ namespace msftbot.Support
         public const string menuItemLocationFormat = "**{0}**{1}{1}";
         public const string menuItemTypeFormat = "- {0}{1}{1}";
         public const string linkToCafeMenuFormat = "#[{0}]({1}{0}){2}{2}";
+        public const string foodTruckFormat = "{0} - {1}{2}{2}";
 
         /// <summary>
         /// API URL calls
