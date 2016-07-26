@@ -20,12 +20,13 @@ namespace msftbot.Controllers.Messages
     [BotAuthentication]
     public class MessagesController : ApiController
     {
-        #region Shuttle Variables
+        #region Variables
         static bool ContextCallShuttle = false;
         static string Destination = String.Empty;
         static string Origin = String.Empty;
         CafeActions CafeAction = new CafeActions();
         ShuttleActions ShuttleAction = new ShuttleActions();
+        FoodTruckActions FoodTruckAction = new FoodTruckActions();
         #endregion
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
@@ -47,6 +48,11 @@ namespace msftbot.Controllers.Messages
                 {                    
                     switch (diLUIS.intents[0].intent)
                     {
+                        case Constants.listFoodTruckIntent: //find-food is an intent from LUIS
+                            if (diLUIS.entities.Count() > 0) //Expect entities
+                                BotResponse = await FoodTruckAction.GetAllFoodTruck();
+                            break;
+
                         case Constants.listCafeIntent: //find-food is an intent from LUIS
                             if (diLUIS.entities.Count() > 0) //Expect entities
                                 BotResponse = await CafeAction.GetAllCafes();
@@ -118,6 +124,7 @@ namespace msftbot.Controllers.Messages
                                     " \"Show me all cafes.\"," + Environment.NewLine + Environment.NewLine +
                                     "\"What can I eat in cafe 16? \"," + Environment.NewLine + Environment.NewLine +
                                     "\"Where can I find pizza?\", " + Environment.NewLine + Environment.NewLine +
+                                    "\"Find food trucks.\", " + Environment.NewLine + Environment.NewLine +
                                     " \"get me from building 1 to 92\" ";
                             }
                             break;
