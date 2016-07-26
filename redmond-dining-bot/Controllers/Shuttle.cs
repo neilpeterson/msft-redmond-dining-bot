@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using msftbot.Support;
 using Newtonsoft.Json;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.FormFlow;
 
 namespace msftbot
 {
