@@ -147,7 +147,7 @@ namespace msftbot.Controllers.Messages
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
-        
+
         private void ContinueActivity(ConnectorClient connector, StateClient stateClient, Activity activity, BotData userData)
         {
             string activityType = userData.GetProperty<string>("ActivityType");
