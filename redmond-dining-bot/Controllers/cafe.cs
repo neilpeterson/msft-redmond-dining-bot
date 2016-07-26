@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using msftbot.Support;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace msftbot
 {
@@ -47,29 +48,43 @@ namespace msftbot
 
     internal class CafeActions
     {
+        static List<Cafe> allCafeList = null;
+
         internal CafeActions()
-        { }
+        {  }
 
         internal async Task<string> GetAllCafes()
         {
-            // Get authentication token from authentication.cs
-            Authentication auth = new Authentication();
-            string authtoken = await auth.GetAuthHeader();
+#if DEBUG
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+#endif
 
-            // Get JSON – List of all Cafes
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
+            if (allCafeList == null)
+            {
+                // Get authentication token from authentication.cs
+                Authentication auth = new Authentication();
+                string authtoken = await auth.GetAuthHeader();
 
-            // Convert JSON to list
-            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
+                // Get JSON – List of all Cafes
+                HttpClient httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                #region DEBUG
+                Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+                #endregion
+                // Convert JSON to list
+                allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
+            }
 
             // String for output
             StringBuilder allcafes = new StringBuilder();
             //Adding conversation text
-            allcafes.Append("Here is the list of all cafes: "+ Environment.NewLine); 
+            allcafes.Append("Here is the list of all cafes: " + Environment.NewLine);
 
             // Filter out any without 'Cafe' in the name
             var cafe =
@@ -88,6 +103,11 @@ namespace msftbot
 
         internal async Task<string> GetCafeForItem(string dining)
         {
+#if DEBUG
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+#endif
             // Get authentication token from authentication.cs
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
@@ -99,13 +119,17 @@ namespace msftbot
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
+            #region DEBUG
+            Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+            #endregion
+
             // Convert JSON to list
             List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
 
             // Format list
             StringBuilder cafe = new StringBuilder();
             //Adding conversation text
-            cafe.Append("You can find " + dining + " at: "+ Environment.NewLine);
+            cafe.Append("You can find " + dining + " at: " + Environment.NewLine + Environment.NewLine);
 
             list.ForEach(i =>
             {
@@ -117,6 +141,13 @@ namespace msftbot
 
         internal async Task<string> GetCafeMenu(string location)
         {
+
+#if DEBUG
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+#endif
+
             //do this first to avoid lots of extra processing.
             // Get the day of the week (1 – 5) for use in API URI. 
             DateTime day = DateTime.Now;
@@ -125,7 +156,7 @@ namespace msftbot
             // String menu - empty string will be populating from json response.
             StringBuilder menu = new StringBuilder();
             //Adding conversation text
-            menu.Append("Here is what I found for " + location +"."+ Environment.NewLine);
+            menu.Append("Here is what I found for " + location + "." + Environment.NewLine + Environment.NewLine);
 
             if ((day.DayOfWeek == DayOfWeek.Saturday) || (day.DayOfWeek == DayOfWeek.Sunday))
             {
@@ -138,16 +169,25 @@ namespace msftbot
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
 
+
             // Get JSON – List of all Cafes
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
-            HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync(Constants.listAllCafeNames);
-            ResponseAllCafe.EnsureSuccessStatusCode();
-            string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
 
-            // Convert JSON to list
-            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
-            
+            if (allCafeList == null)
+            {
+                HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync(Constants.listAllCafeNames);
+                ResponseAllCafe.EnsureSuccessStatusCode();
+                string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
+
+                #region DEBUG
+                Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+                #endregion
+
+                // Convert JSON to list
+                allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
+            }
+
             //Formatting for API call
             if (location.Contains(Constants.buildingEntity))
             {
@@ -156,7 +196,8 @@ namespace msftbot
             if (!location.Contains(Constants.cafeEntity))
             {
                 // if no cafe already in location add "cafe". Explicitely calling this out to handle location = "36"
-                location = Constants.cafeEntity + location;
+                //location = Constants.cafeEntity + location;
+                location = "cafe " + location;
             }
 
             var buildingid =
@@ -179,6 +220,10 @@ namespace msftbot
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
+                #region DEBUG
+                Debug.WriteLine("Cafe.cs get JSON #2 completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+                #endregion
+
                 // Convert JSON to list
                 List<CafeMenu> list = JsonConvert.DeserializeObject<List<CafeMenu>>(responseBody);
 
@@ -197,6 +242,11 @@ namespace msftbot
             {
                 menu.AppendLine(Constants.noMenuFoundDialogue);
             }
+
+            #region DEBUG
+            Debug.WriteLine("Cafe.cs about to return list - Time elapsed at start: {0}", stopwatch.Elapsed);
+            stopwatch.Reset();
+            #endregion
             // Return list
             return menu.ToString();
         }
