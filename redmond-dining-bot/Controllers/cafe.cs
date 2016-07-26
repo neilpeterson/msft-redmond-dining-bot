@@ -48,8 +48,10 @@ namespace msftbot
 
     internal class CafeActions
     {
+        static List<Cafe> allCafeList = null;
+
         internal CafeActions()
-        { }
+        { Debug.WriteLine("Cafe.cs cafe action constructor"); }
 
         internal async Task<string> GetAllCafes()
         {
@@ -58,22 +60,26 @@ namespace msftbot
                   stopwatch.Start();
                   Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
             #endif
-            // Get authentication token from authentication.cs
-            Authentication auth = new Authentication();
-            string authtoken = await auth.GetAuthHeader();
 
-            // Get JSON – List of all Cafes
-            HttpClient httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
-            HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
+            if (allCafeList == null)
+            { 
+                // Get authentication token from authentication.cs
+                Authentication auth = new Authentication();
+                string authtoken = await auth.GetAuthHeader();
 
-            #region DEBUG
-            Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
-            #endregion
-            // Convert JSON to list
-            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
+                // Get JSON – List of all Cafes
+                HttpClient httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authtoken);
+                HttpResponseMessage response = await httpClient.GetAsync("https://msrefdiningint.azurewebsites.net/api/v1/cafes");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                #region DEBUG
+                Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+                #endregion
+                // Convert JSON to list
+                allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
+            }
 
             // String for output
             StringBuilder allcafes = new StringBuilder();
@@ -163,20 +169,25 @@ namespace msftbot
             Authentication auth = new Authentication();
             string authtoken = await auth.GetAuthHeader();
 
+
             // Get JSON – List of all Cafes
             HttpClient httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
-            HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync(Constants.listAllCafeNames);
-            ResponseAllCafe.EnsureSuccessStatusCode();
-            string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
-            
-            #region DEBUG
-            Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
-            #endregion
 
-            // Convert JSON to list
-            List<Cafe> allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
+            if (allCafeList == null)
+            {
+                HttpResponseMessage ResponseAllCafe = await httpClient.GetAsync(Constants.listAllCafeNames);
+                ResponseAllCafe.EnsureSuccessStatusCode();
+                string RespnseBodyAllCafe = await ResponseAllCafe.Content.ReadAsStringAsync();
             
+                #region DEBUG
+                Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+                #endregion
+
+                // Convert JSON to list
+                allCafeList = JsonConvert.DeserializeObject<List<Cafe>>(RespnseBodyAllCafe);
+            }
+
             //Formatting for API call
             if (location.Contains(Constants.buildingEntity))
             {
