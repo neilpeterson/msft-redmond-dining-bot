@@ -14,28 +14,28 @@ using msftbot;
 using msftbot.Controllers;
 using msftbot.Support;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.FormFlow;
 
 namespace msftbot.Controllers.Messages
 {
     [BotAuthentication]
     public class MessagesController : ApiController
     {
-        #region Variables
-        static bool ContextCallShuttle = false;
-        static string Destination = String.Empty;
-        static string Origin = String.Empty;
         CafeActions CafeAction = new CafeActions();
         ShuttleActions ShuttleAction = new ShuttleActions();
         FoodTruckActions FoodTruckAction = new FoodTruckActions();
-        #endregion
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             
-            if (activity.Type == Constants.messageActivityType)
+            if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
+                //For picking up from a shuttle booking in progress
+                StateClient stateClient = activity.GetStateClient();
+                BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+                
                 //quick response
                 Activity reply = activity.CreateReply(Constants.workingDialogue);
                 await connector.Conversations.ReplyToActivityAsync(reply);
@@ -54,78 +54,36 @@ namespace msftbot.Controllers.Messages
                             break;
 
                         case Constants.listCafeIntent: //find-food is an intent from LUIS
+                            SetConversationToOngoingActivity(stateClient, userData, activity);
                             if (diLUIS.entities.Count() > 0) //Expect entities
                                 BotResponse = await CafeAction.GetAllCafes();
                             break;
 
                         case Constants.findFoodIntent: //find-food is an intent from LUIS
+                            SetConversationToOngoingActivity(stateClient, userData, activity);
                             if (diLUIS.entities.Count() > 0) //Expect entities
                                 BotResponse = await CafeAction.GetCafeForItem(diLUIS.entities[0].entity);
                             break;
 
                         // change this back to GetMenu if test does not work out
                         case Constants.findMenuIntent: //find-food is an intent from LUIS
+                            SetConversationToOngoingActivity(stateClient, userData, activity);
                             if (diLUIS.entities.Count() > 0) //Expect entities
                                 BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity);
                             break;
 
                         case Constants.scheduleShuttleIntent:
-                            if (diLUIS.entities.Count() == 0) //"get me a shuttle"
-                                BotResponse = "I need to know where to pick you up and drop you off. Please state from where to where do you need the shuttle";
-                            else if ((diLUIS.entities.Count() == 1) ||(!(diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")))
-                            {
-                                //bot ask user to clearly state from where do you want me to take you and to where. 
-                                if (diLUIS.entities[0].type == "Destination Building")
-                                {
-                                    //if destination given
-                                    BotResponse = "I need to know where to pick you up. Can you state from where to where do you need the shuttle?";
-                                }
-                                else if (diLUIS.entities[0].type == "Origin Building")
-                                {
-                                    //if origin given
-                                    BotResponse = "I need to know where to drop you off. Can you state from where to where do you need the shuttle?";
-                                }
-                                else
-                                {
-                                    //if nothing given
-                                }
-                            }
-                            else if (diLUIS.entities.Count() > 0 && diLUIS.entities[0].type == "Destination Building" && diLUIS.entities[1].type == "Origin Building")
-                            {
-                                if(await ShuttleAction.SetShuttleRequest(diLUIS.entities[0].entity, diLUIS.entities[1].entity))
-                                {
-                                    BotResponse = string.Format("Shuttle has been booked from {0} to {1}", diLUIS.entities[1].entity, diLUIS.entities[0].entity);
-                                }
-                            }
-                            else
-                                BotResponse = "I think you wanted a shuttle, but I'm not sure. Let's start over. What do you want me to do?";
-                            break;
+                            //Setting the state of the conversation to active session.
+                            SetConversationToOngoingActivity(stateClient,userData,activity);
+                            
+                            BotResponse = "Starting to book a shuttle.";
 
-                        case "yes":
-                            if (ContextCallShuttle && diLUIS.entities.Count() == 0)
-                            {
-                                BotResponse = "Okay, I scheduled a shuttle for you from building " + Origin + " to building " + Destination + ". Your Confirmation Number is "+ RandomNumber(10000, 99999)+".";
-                                ResetShuttleVariables();
-                            }
-                            break;
-
-                        case "no":
-                            if (ContextCallShuttle && diLUIS.entities.Count() == 0)
-                            {
-                                BotResponse = "I'm sorry, let's start over then. What do you want me to do?";
-                                ResetShuttleVariables();
-                            }
                             break;
 
                         case "help":
                             if (diLUIS.entities.Count() == 0)
                             {
-                                BotResponse = "I'm RefBot and I'm here to help you get food and get around campus. Try the following commands:" + Environment.NewLine + Environment.NewLine +
-                                    " \"Show me all cafes.\"," + Environment.NewLine + Environment.NewLine +
-                                    "\"What can I eat in cafe 16? \"," + Environment.NewLine + Environment.NewLine +
-                                    "\"Where can I find pizza?\", " + Environment.NewLine + Environment.NewLine +
-                                    "\"Find food trucks.\", " + Environment.NewLine + Environment.NewLine +
-                                    " \"get me from building 1 to 92\" ";
+                                BotResponse = string.Format(Constants.helpDialogue,Environment.NewLine);
                             }
                             break;
                         default:
@@ -135,7 +93,7 @@ namespace msftbot.Controllers.Messages
                 }
                 else
                 {
-                    BotResponse = "Sorry, I am not getting you...";
+                    BotResponse = "Sorry, I am not getting you..." + Environment.NewLine + string.Format(Constants.helpDialogue, Environment.NewLine); ;
                 }
                 #endregion               
 
@@ -151,35 +109,13 @@ namespace msftbot.Controllers.Messages
             return response;
         }
 
-        private void ResetShuttleVariables()
+        private async void SetConversationToOngoingActivity(StateClient state, BotData userData, Activity activity)
         {
-            ContextCallShuttle = false;
-            Destination = String.Empty;
-            Origin = String.Empty;
-            return;
+            //Setting the state of the conversation to active session.
+            userData.SetProperty<bool>("OngoingActivity", true);
+            await state.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
         }
 
-        private int RandomNumber(int min, int max)
-        {
-            Random random = new Random();
-            return random.Next(min, max);
-        }
-
-        private async Task<string> SetShuttleRequest(string arg_destination, string arg_origin)
-        {
-            string response = string.Empty;
-            //assert that these variables are reset
-            System.Diagnostics.Debug.Assert((Destination == String.Empty) && (Origin == String.Empty) && (!ContextCallShuttle));
-
-            //set context variables
-            ContextCallShuttle = true;
-            Destination = arg_destination;
-            Origin = arg_origin;
-
-            response = string.Format(Constants.scheudleShuttleDialogue,Origin,Destination);
-            return response;
-        }
-       
         private async Task<Luis> GetEntityFromLUIS(string Query)
         {
             Query = Uri.EscapeDataString(Query);
