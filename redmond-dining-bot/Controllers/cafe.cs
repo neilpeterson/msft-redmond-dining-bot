@@ -51,7 +51,7 @@ namespace msftbot
         static List<Cafe> allCafeList = null;
 
         internal CafeActions()
-        { Debug.WriteLine("Cafe.cs cafe action constructor"); }
+        {  }
 
         internal async Task<string> GetAllCafes()
         {
