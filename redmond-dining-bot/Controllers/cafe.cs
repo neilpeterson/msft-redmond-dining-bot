@@ -129,7 +129,7 @@ namespace msftbot
             // Format list
             StringBuilder cafe = new StringBuilder();
             //Adding conversation text
-            cafe.Append("You can find " + dining + " at: "+ Environment.NewLine);
+            cafe.Append("You can find " + dining + " at: "+ Environment.NewLine + Environment.NewLine);
 
             list.ForEach(i =>
             {
@@ -156,7 +156,7 @@ namespace msftbot
             // String menu - empty string will be populating from json response.
             StringBuilder menu = new StringBuilder();
             //Adding conversation text
-            menu.Append("Here is what I found for " + location +"."+ Environment.NewLine);
+            menu.Append("Here is what I found for " + location +"."+ Environment.NewLine + Environment.NewLine);
 
             if ((day.DayOfWeek == DayOfWeek.Saturday) || (day.DayOfWeek == DayOfWeek.Sunday))
             {
