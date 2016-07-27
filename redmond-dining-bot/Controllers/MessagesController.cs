@@ -178,6 +178,19 @@ namespace msftbot.Controllers.Messages
                                 BotResponse = string.Format(Constants.helpDialogue,Environment.NewLine);
                             }
                             break;
+                        case Constants.cancelShuttleIntent:
+                            //cancel shuttle
+                            if (diLUIS.entities.Count() > 0)
+                            {
+                                //if user provided a confirmation number
+                                BotResponse = "Cancelling shuttle with confirmation number "+diLUIS.entities[0].entity+" as requested.";
+                            }
+                            else
+                            {
+                                BotResponse = "Cancelling shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number")+".";
+                                userData.SetProperty<string>("Confirmation Number", "");
+                            }
+                                break;
                         default:
                             BotResponse = "Sorry, I can't understand your intent.";
                             break;
@@ -247,11 +260,15 @@ namespace msftbot.Controllers.Messages
             }
             else
             {
-                BotResponse = string.Format("Booked a shuttle from {0} to {1}. Your confirmation number is {2} and the shuttle {4} will pick you up from {1} at 12:{3}", userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"), RandomNumber(10000,99999), RandomNumber(10, 59), RandomNumber(201, 250));
-                userData.SetProperty<bool>("OngoingActivity", false);
+                int confirmationNumber = RandomNumber(10000, 99999);
+                BotResponse = string.Format("Booked a shuttle from {0} to {1}. Your confirmation number is {2} and the shuttle {4} will pick you up from {1} at 12:{3}", userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"), confirmationNumber, RandomNumber(10, 59), RandomNumber(201, 250));
+                userData.SetProperty<string>("Confirmation Number", confirmationNumber.ToString());
 
+                //reset user data since booking is done.
+                userData.SetProperty<bool>("OngoingActivity", false);
                 userData.SetProperty<string>("DestinationBuilding", "");
                 userData.SetProperty<string>("OriginBuilding", "");
+                
             }
 
             stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);

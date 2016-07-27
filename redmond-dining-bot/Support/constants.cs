@@ -18,6 +18,7 @@ namespace msftbot.Support
         public const string findFoodIntent = "find-food";
         public const string findMenuIntent = "find-menu";
         public const string scheduleShuttleIntent = "schedule shuttle";
+        public const string cancelShuttleIntent = "cancel shuttle";
 
         /// <summary>
         /// Dialogue Strings
