@@ -139,6 +139,63 @@ namespace msftbot
             return cafe.ToString();
         }
 
+        internal async Task<string> findItemInCafe(string dining, string location)
+        {
+            //modeled after GetCafeForItem
+#if DEBUG
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Debug.WriteLine("Cafe.cs Timer start, time elapsed at start: {0}", stopwatch.Elapsed);
+#endif
+            // Get authentication token from authentication.cs
+            Authentication auth = new Authentication();
+            string authtoken = await auth.GetAuthHeader();
+
+            // Get JSON – List of all Cafe serving the requested item
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.AuthHeaderValueScheme, authtoken);
+            HttpResponseMessage response = await httpClient.GetAsync(string.Format(Constants.listCafesServingItem, dining));
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            #region DEBUG
+            Debug.WriteLine("Cafe.cs get JSON completed - Time elapsed at start: {0}", stopwatch.Elapsed);
+            #endregion
+
+            // Convert JSON to list
+            List<Cafe> list = JsonConvert.DeserializeObject<List<Cafe>>(responseBody);
+
+            // Format list
+            StringBuilder cafe = new StringBuilder();
+            // Adding conversation text
+            cafe.Append("Sorry, "+ dining + " is not offered at " + location + Environment.NewLine + Environment.NewLine);
+
+            //scrub location. 
+            if (location.Contains(Constants.buildingEntity))
+            {
+                location = location.Replace(Constants.buildingEntity, "Cafe");
+            }
+            if (!location.Contains(Constants.cafeEntity))
+            {
+                // if no cafe already in location add "cafe". Explicitely calling this out to handle location = "36"
+                //location = Constants.cafeEntity + location;
+                location = "Cafe " + location;
+            }
+
+            location = location.Replace("cafe", "Cafe");
+
+            list.ForEach(i =>
+            {
+                if (string.Compare(i.CafeName, location, true)==0)
+                {
+                    cafe.Clear();
+                    cafe.Append(dining + " is offered at " + location + Environment.NewLine + Environment.NewLine); ;
+                }
+            });                 
+
+            return cafe.ToString();
+        }
+
         internal async Task<string> GetCafeMenu(string location, string DayOfWeekFromLuis)
         {
 #if DEBUG
@@ -224,7 +281,6 @@ namespace msftbot
 
             try
             {
-
                 //Get JSON – Cafe menu
                 HttpResponseMessage response = await httpClient.GetAsync(string.Format(Constants.listCafeMenu, newid, today));
                 response.EnsureSuccessStatusCode();

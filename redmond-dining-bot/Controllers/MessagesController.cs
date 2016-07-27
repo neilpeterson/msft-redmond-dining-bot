@@ -108,7 +108,17 @@ namespace msftbot.Controllers.Messages
 
                         case Constants.findFoodIntent: //find-food is an intent from LUIS
                             SetConversationToOngoingActivity(stateClient, userData, activity,"findFood");
-                            if (diLUIS.entities.Count() > 0) //Expect entities
+
+                            if (diLUIS.entities.Any(e => e.type == "Food Item") && diLUIS.entities.Any(e => e.type == "Cafe Name")) //Expect entities 
+                            {
+                                Activity quickReply = activity.CreateReply("Checking...");
+                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
+                                string location = diLUIS.entities.Single(e => e.type == "Cafe Name").entity;
+                                string dining = diLUIS.entities.Single(e => e.type == "Food Item").entity;
+                                BotResponse = await CafeAction.findItemInCafe(dining, location);
+                                //TODO: check order of entity
+                            }
+                            else if (diLUIS.entities.Count() > 0) //Expect entities
                             {
                                 #region DEBUG
                                 Debug.WriteLine("MC food look up - Time elapsed at start: {0}", stopwatch.Elapsed);
@@ -123,7 +133,16 @@ namespace msftbot.Controllers.Messages
                         case Constants.findMenuIntent: //find-food is an intent from LUIS
                             SetConversationToOngoingActivity(stateClient, userData, activity, "findMenu");
 
-                            if (diLUIS.entities.Any(e => e.type == "Day of Week") && diLUIS.entities.Any(e => e.type == "Cafe Name"))
+                            if (diLUIS.entities.Any(e => e.type == "Food Item") && diLUIS.entities.Any(e => e.type == "Cafe Name")) //Expect entities 
+                            {
+                                Activity quickReply = activity.CreateReply("Checking...");
+                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
+                                string location = diLUIS.entities.Single(e => e.type == "Cafe Name").entity;
+                                string dining = diLUIS.entities.Single(e => e.type == "Food Item").entity;
+                                BotResponse = await CafeAction.findItemInCafe(dining, location);
+                                //TODO: check order of entity
+                            }
+                            else if (diLUIS.entities.Any(e => e.type == "Day of Week") && diLUIS.entities.Any(e => e.type == "Cafe Name"))
                             {
                                 string dayOfWeek = diLUIS.entities.Single(e => e.type == "Day of Week").entity;
                                 string cafeName = diLUIS.entities.Single(e => e.type == "Cafe Name").entity;
