@@ -185,10 +185,14 @@ namespace msftbot.Controllers.Messages
                                 //if user provided a confirmation number
                                 BotResponse = "Cancelling shuttle with confirmation number "+diLUIS.entities[0].entity+" as requested.";
                             }
-                            else
+                            else if (userData.GetProperty<string>("Confirmation Number").CompareTo("")!=0)
                             {
                                 BotResponse = "Cancelling shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number")+".";
                                 userData.SetProperty<string>("Confirmation Number", "");
+                                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                            }
+                            else{
+                                BotResponse = "Sorry, no confirmation number found";
                             }
                                 break;
                         default:
@@ -227,6 +231,8 @@ namespace msftbot.Controllers.Messages
             {
                 case "bookShuttle":
                     response = continueShuttle(connector, stateClient, activity, ref userData);
+                    break;
+                case "cancelShuttle":
                     break;
             }
 
