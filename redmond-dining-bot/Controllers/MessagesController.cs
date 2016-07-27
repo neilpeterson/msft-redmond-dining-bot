@@ -74,9 +74,6 @@ namespace msftbot.Controllers.Messages
                     ContinueActivity(connector, stateClient, activity, userData);
                 }
 
-                //quick response
-                await connector.Conversations.ReplyToActivityAsync(reply);
-
                 #region LUIS
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
 
@@ -108,13 +105,16 @@ namespace msftbot.Controllers.Messages
 
                         case Constants.findFoodIntent: //find-food is an intent from LUIS
                             SetConversationToOngoingActivity(stateClient, userData, activity,"findFood");
+                            
+                            //Sending quick reply
+                            Activity quickReply = activity.CreateReply("Searching for locations with " + diLUIS.entities[0].entity);
+                            connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
+
                             if (diLUIS.entities.Count() > 0) //Expect entities
                             {
                                 #region DEBUG
                                 Debug.WriteLine("MC food look up - Time elapsed at start: {0}", stopwatch.Elapsed);
                                 #endregion
-                                Activity quickReply = activity.CreateReply("Searching for locations with " + diLUIS.entities[0].entity);
-                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
                                 BotResponse = await CafeAction.GetCafeForItem(diLUIS.entities[0].entity);
                             }
                             break;
@@ -122,6 +122,10 @@ namespace msftbot.Controllers.Messages
                         // change this back to GetMenu if test does not work out
                         case Constants.findMenuIntent: //find-food is an intent from LUIS
                             SetConversationToOngoingActivity(stateClient, userData, activity, "findMenu");
+
+                            //Sending quick reply
+                            quickReply = activity.CreateReply("Gathering menus from " + diLUIS.entities[0].entity);
+                            connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous 
 
                             if (diLUIS.entities.Any(e => e.type == "Day of Week") && diLUIS.entities.Any(e => e.type == "Cafe Name"))
                             {

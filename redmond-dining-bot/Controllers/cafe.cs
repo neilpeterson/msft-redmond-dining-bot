@@ -199,7 +199,7 @@ namespace msftbot
             }
 
             //Formatting for API call
-            if (location.Contains(Constants.buildingEntity))
+            if (CheckLocationInput(location))
             {
                 location = location.Replace(Constants.buildingEntity, Constants.cafeEntity);
             }
@@ -259,6 +259,11 @@ namespace msftbot
             #endregion
             // Return list
             return menu.ToString();
+        }
+
+        private bool CheckLocationInput(string location)
+        {
+            return (location.Contains(Constants.buildingEntity) || location.Contains(Constants.caféEntity));
         }
     }
 }
