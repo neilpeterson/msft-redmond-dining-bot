@@ -64,15 +64,14 @@ namespace msftbot.Controllers.Messages
                         var endActivity = Request.CreateResponse(HttpStatusCode.OK);
                         return endActivity;
                     }
-
-                    switch(userData.GetProperty<string>("ActivityType"))
-                    {
-                        case "bookShuttle":
-                            break;
-                    }
-
-                    ContinueActivity(connector, stateClient, activity, userData);
-                }
+                    
+                    BotResponse = ContinueActivity(connector, stateClient, activity, ref userData);
+                    await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                    reply = activity.CreateReply(BotResponse);
+                    await connector.Conversations.ReplyToActivityAsync(reply);
+                    var response2 = Request.CreateResponse(HttpStatusCode.OK);
+                    return response2;
+            }
 
                 #region LUIS
                 Luis diLUIS = await GetEntityFromLUIS(activity.Text);
@@ -143,17 +142,17 @@ namespace msftbot.Controllers.Messages
                             //set variables for shuttles.
                             if (diLUIS.entities.Any(e => e.type == "Destination Building"))
                             {
-                                userData.SetProperty<string>("DestinationBuilding", diLUIS.entities.Single(e => e.type == "Destination Building").type);
+                                userData.SetProperty<string>("DestinationBuilding", diLUIS.entities.Single(e => e.type == "Destination Building").entity);
                             }
                             if (diLUIS.entities.Any(e => e.type == "Origin Building"))
                             {
-                                userData.SetProperty<string>("OriginBuilding", diLUIS.entities.Single(e => e.type == "Origin Building").type);
+                                userData.SetProperty<string>("OriginBuilding", diLUIS.entities.Single(e => e.type == "Origin Building").entity);
                             }
 
                             //Setting the state of the conversation to active session.
                             SetConversationToOngoingActivity(stateClient,userData,activity,"bookShuttle");
-                            
-                            BotResponse = "Starting to book a shuttle.";
+
+                            BotResponse = ContinueActivity(connector, stateClient, activity, ref userData);
                             break;
 
                         case "help":
@@ -189,10 +188,58 @@ namespace msftbot.Controllers.Messages
             return response;
         }
 
-        private void ContinueActivity(ConnectorClient connector, StateClient stateClient, Activity activity, BotData userData)
+        private string ContinueActivity(ConnectorClient connector, StateClient stateClient, Activity activity, ref BotData userData)
         {
             string activityType = userData.GetProperty<string>("ActivityType");
+            string response = string.Empty;
+
+            switch(activityType)
+            {
+                case "bookShuttle":
+                    response = continueShuttle(connector, stateClient, activity, ref userData);
+                    break;
+            }
+
+            return response;
             
+        }
+
+        private string continueShuttle(ConnectorClient connector, StateClient stateClient, Activity activity, ref BotData userData)
+        {
+            string BotResponse = string.Empty;
+            if(userData.GetProperty<bool>("GetDestination"))
+            {
+                userData.SetProperty<bool>("GetDestination", false);
+                userData.SetProperty<string>("DestinationBuilding", activity.Text);
+            }
+            else if (userData.GetProperty<bool>("GetOrigin"))
+            {
+                userData.SetProperty<bool>("GetOrigin", false);
+                userData.SetProperty<string>("OriginBuilding", activity.Text);
+            }
+
+            if (userData.GetProperty<string>("DestinationBuilding") == null || userData.GetProperty<string>("DestinationBuilding") == "")
+            {
+                BotResponse = "Please supply a destination.";
+                userData.SetProperty<bool>("GetDestination",true);
+            }
+            else if (userData.GetProperty<string>("OriginBuilding") == null || userData.GetProperty<string>("OriginBuilding") == "")
+            {
+                BotResponse = "Please supply a starting building.";
+                userData.SetProperty<bool>("GetOrigin", true);
+            }
+            else
+            {
+                BotResponse = string.Format("Booked a shuttle from {0} to {1}.", userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"));
+                userData.SetProperty<bool>("OngoingActivity", false);
+
+                userData.SetProperty<string>("DestinationBuilding", "");
+                userData.SetProperty<string>("OriginBuilding", "");
+            }
+
+            stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+
+            return BotResponse;
         }
 
         private async void SetConversationToOngoingActivity(StateClient state, BotData userData, Activity activity, string activityType)
