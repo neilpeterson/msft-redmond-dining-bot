@@ -107,8 +107,8 @@ namespace msftbot.Controllers.Messages
 
                             if (diLUIS.entities.Any(e => e.type == "Food Item") && diLUIS.entities.Any(e => e.type == "Cafe Name")) //Expect entities 
                             {
-                                Activity quickReply = activity.CreateReply("Checking...");
-                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
+                                Activity quickReply1 = activity.CreateReply("Checking...");
+                                connector.Conversations.ReplyToActivity(quickReply1); //assume this is synchronous
                                 string location = diLUIS.entities.Single(e => e.type == "Cafe Name").entity;
                                 string dining = diLUIS.entities.Single(e => e.type == "Food Item").entity;
                                 BotResponse = await CafeAction.findItemInCafe(dining, location);
@@ -119,8 +119,8 @@ namespace msftbot.Controllers.Messages
                                 #region DEBUG
                                 Debug.WriteLine("MC food look up - Time elapsed at start: {0}", stopwatch.Elapsed);
                                 #endregion
-                                Activity quickReply = activity.CreateReply("Searching for locations with " + diLUIS.entities[0].entity);
-                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
+                                Activity quickReply2 = activity.CreateReply("Searching for locations with " + diLUIS.entities[0].entity);
+                                connector.Conversations.ReplyToActivity(quickReply2); //assume this is synchronous
                                 BotResponse = await CafeAction.GetCafeForItem(diLUIS.entities[0].entity);
                             }
                             break;
@@ -129,10 +129,11 @@ namespace msftbot.Controllers.Messages
                         case Constants.findMenuIntent: //find-food is an intent from LUIS
                             //SetConversationToOngoingActivity(stateClient, userData, activity, "findMenu");
 
+
                             if (diLUIS.entities.Any(e => e.type == "Food Item") && diLUIS.entities.Any(e => e.type == "Cafe Name")) //Expect entities 
                             {
-                                Activity quickReply = activity.CreateReply("Checking...");
-                                connector.Conversations.ReplyToActivity(quickReply); //assume this is synchronous
+                                Activity quickReply3 = activity.CreateReply("Checking...");
+                                connector.Conversations.ReplyToActivity(quickReply3); //assume this is synchronous
                                 string location = diLUIS.entities.Single(e => e.type == "Cafe Name").entity;
                                 string dining = diLUIS.entities.Single(e => e.type == "Food Item").entity;
                                 BotResponse = await CafeAction.findItemInCafe(dining, location);
@@ -142,10 +143,14 @@ namespace msftbot.Controllers.Messages
                             {
                                 string dayOfWeek = diLUIS.entities.Single(e => e.type == "Day of Week").entity;
                                 string cafeName = diLUIS.entities.Single(e => e.type == "Cafe Name").entity;
+                                Activity quickReply4 = activity.CreateReply("Gathering menus from " + diLUIS.entities[0].entity);
+                                connector.Conversations.ReplyToActivity(quickReply4); //assume this is synchronous  
                                 BotResponse = await CafeAction.GetCafeMenu(cafeName, dayOfWeek);
                             }
                             else
                             {
+                                Activity quickReply5 = activity.CreateReply("Gathering menus from " + diLUIS.entities[0].entity);
+                                connector.Conversations.ReplyToActivity(quickReply5); //assume this is synchronous  
                                 BotResponse = await CafeAction.GetCafeMenu(diLUIS.entities[0].entity, "today");
                             }
                             break;
