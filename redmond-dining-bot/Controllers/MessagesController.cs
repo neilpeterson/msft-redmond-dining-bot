@@ -237,17 +237,17 @@ namespace msftbot.Controllers.Messages
 
             if (userData.GetProperty<string>("DestinationBuilding") == null || userData.GetProperty<string>("DestinationBuilding") == "")
             {
-                BotResponse = "Please supply a destination.";
+                BotResponse = "I need to know where you are going. Please state your destination.";
                 userData.SetProperty<bool>("GetDestination",true);
             }
             else if (userData.GetProperty<string>("OriginBuilding") == null || userData.GetProperty<string>("OriginBuilding") == "")
             {
-                BotResponse = "Please supply a starting building.";
+                BotResponse = "I need to know where to pick you up. Please state your origin.";
                 userData.SetProperty<bool>("GetOrigin", true);
             }
             else
             {
-                BotResponse = string.Format("Booked a shuttle from {0} to {1}.", userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"));
+                BotResponse = string.Format("Booked a shuttle from {0} to {1}. Your confirmation number is {2} and the shuttle will pick you up from {1} at 12:{3}", userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"), RandomNumber(10000,99999), RandomNumber(10, 59));
                 userData.SetProperty<bool>("OngoingActivity", false);
 
                 userData.SetProperty<string>("DestinationBuilding", "");
@@ -257,6 +257,12 @@ namespace msftbot.Controllers.Messages
             stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
 
             return BotResponse;
+        }
+
+        private int RandomNumber(int min, int max)
+        {
+            Random random = new Random();
+            return random.Next(min, max);
         }
 
         private async void SetConversationToOngoingActivity(StateClient state, BotData userData, Activity activity, string activityType)
