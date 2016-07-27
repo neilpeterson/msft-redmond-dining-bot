@@ -12,6 +12,7 @@ namespace msftbot.Support
         /// </summary>
         public const string buildingEntity = "building";
         public const string cafeEntity = "cafe";
+        public const string caféEntity = "café";
         public const string listCafeIntent = "list-all-cafe";
         public const string listFoodTruckIntent = "food-truck";
         public const string findFoodIntent = "find-food";
