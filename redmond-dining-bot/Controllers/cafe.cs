@@ -84,7 +84,7 @@ namespace msftbot
             // String for output
             StringBuilder allcafes = new StringBuilder();
             //Adding conversation text
-            allcafes.Append("Here is the list of all cafes: " + Environment.NewLine);
+            allcafes.Append("Here is the list of all cafes: " + Environment.NewLine + Environment.NewLine);
 
             // Filter out any without 'Cafe' in the name
             var cafe =
