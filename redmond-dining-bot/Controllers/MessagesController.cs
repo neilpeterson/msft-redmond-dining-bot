@@ -187,12 +187,11 @@ namespace msftbot.Controllers.Messages
                             }
                             else if (userData.GetProperty<string>("Confirmation Number").CompareTo("")!=0)
                             {
-                                BotResponse = "Cancelling shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number")+".";
-                                userData.SetProperty<string>("Confirmation Number", "");
-                                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                                BotResponse = "I found your most recent shuttle booking. Are you sure you want to cancel shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number") + "? Explicit \"yes\" required";
+                                SetConversationToOngoingActivity(stateClient, userData, activity, "cancelShuttle");
                             }
                             else{
-                                BotResponse = "Sorry, no confirmation number found";
+                                BotResponse = "Sorry, you booked no shuttles recently.";
                             }
                                 break;
                         default:
@@ -233,6 +232,21 @@ namespace msftbot.Controllers.Messages
                     response = continueShuttle(connector, stateClient, activity, ref userData);
                     break;
                 case "cancelShuttle":
+                    if (activity.Text.ToLower().Trim(new Char[] { ' ', '*', '.', '?', '!' }) == "yes") { 
+                        response = "Cancelling shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number") + ".";
+                        
+                        //clear confirmation number
+                        userData.SetProperty<string>("Confirmation Number", "");
+                        stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                    }
+                    else
+                    {
+                        //if user says anything but yes,
+                        response = "Not cancelling shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number") + ".";
+                    }
+                    //ends conversation.
+                    EndConversationOngoingActivity(stateClient, userData, activity); 
+
                     break;
             }
 
