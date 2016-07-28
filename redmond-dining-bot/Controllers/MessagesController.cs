@@ -178,6 +178,23 @@ namespace msftbot.Controllers.Messages
                                 BotResponse = string.Format(Constants.helpDialogue,Environment.NewLine);
                             }
                             break;
+                        case Constants.cancelShuttleIntent:
+                            //cancel shuttle
+                            if (diLUIS.entities.Count() > 0)
+                            {
+                                //if user provided a confirmation number
+                                BotResponse = "Cancelling shuttle with confirmation number "+diLUIS.entities[0].entity+" as requested.";
+                            }
+                            else if (userData.GetProperty<string>("Confirmation Number").CompareTo("")!=0)
+                            {
+                                BotResponse = "I found your most recent shuttle booking. Are you sure you want to cancel shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number") + "? Explicit \"yes\" required";
+                                SetConversationToOngoingActivity(stateClient, userData, activity, "cancelShuttle");
+                            }
+                            else{
+                                //either cancel shuttle when none was ever booked or already canceled most recent shuttle. 
+                                BotResponse = "Sorry, I'm not sure which booking you are referring to. Try \"cancel shuttle 12345 \" where 12345 is a sample confirmation number";
+                            }
+                                break;
                         default:
                             BotResponse = "Sorry, I can't understand your intent.";
                             break;
@@ -215,6 +232,23 @@ namespace msftbot.Controllers.Messages
                 case "bookShuttle":
                     response = continueShuttle(connector, stateClient, activity, ref userData);
                     break;
+                case "cancelShuttle":
+                    if (activity.Text.ToLower().Trim(new Char[] { ' ', '*', '.', '?', '!' }) == "yes") { 
+                        response = "Cancelling shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number") + ".";
+                        
+                        //clear confirmation number
+                        userData.SetProperty<string>("Confirmation Number", "");
+                        stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                    }
+                    else
+                    {
+                        //if user says anything but yes,
+                        response = "Not cancelling shuttle with confirmation number " + userData.GetProperty<string>("Confirmation Number") + ".";
+                    }
+                    //ends conversation.
+                    EndConversationOngoingActivity(stateClient, userData, activity); 
+
+                    break;
             }
 
             return response;
@@ -247,11 +281,15 @@ namespace msftbot.Controllers.Messages
             }
             else
             {
-                BotResponse = string.Format("Booked a shuttle from {0} to {1}. Your confirmation number is {2} and shuttle {4} will pick you up at 12:{3}", userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"), RandomNumber(10000,99999), RandomNumber(10, 59), RandomNumber(201, 250));
-                userData.SetProperty<bool>("OngoingActivity", false);
+                int confirmationNumber = RandomNumber(10000, 99999);
+                BotResponse = string.Format("Booked a shuttle from {0} to {1}. Your confirmation number is {2} and shuttle {4} will pick you up at {3}." , userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"), confirmationNumber, DateTime.Now.AddMinutes(12).ToString("H:mm"), RandomNumber(201, 250));
+                userData.SetProperty<string>("Confirmation Number", confirmationNumber.ToString());
 
+                //reset user data since booking is done.
+                userData.SetProperty<bool>("OngoingActivity", false);
                 userData.SetProperty<string>("DestinationBuilding", "");
                 userData.SetProperty<string>("OriginBuilding", "");
+
             }
 
             stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
