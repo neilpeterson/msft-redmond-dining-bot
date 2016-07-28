@@ -2,19 +2,12 @@ using DiningLUISNS;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
-using msftbot;
-using msftbot.Controllers;
 using msftbot.Support;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Builder.FormFlow;
 using System.Diagnostics;
 
 namespace msftbot.Controllers.Messages
