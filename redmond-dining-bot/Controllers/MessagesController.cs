@@ -282,7 +282,7 @@ namespace msftbot.Controllers.Messages
             else
             {
                 int confirmationNumber = RandomNumber(10000, 99999);
-                BotResponse = string.Format("Booked a shuttle from {0} to {1}. Your confirmation number is {2} and shuttle {4} will pick you up at 12:{3}", userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"), confirmationNumber, RandomNumber(10, 59), RandomNumber(201, 250));
+                BotResponse = string.Format("Booked a shuttle from {0} to {1}. Your confirmation number is {2} and shuttle {4} will pick you up at {3}." , userData.GetProperty<string>("OriginBuilding"), userData.GetProperty<string>("DestinationBuilding"), confirmationNumber, DateTime.Now.AddMinutes(12).ToString("H:mm"), RandomNumber(201, 250));
                 userData.SetProperty<string>("Confirmation Number", confirmationNumber.ToString());
 
                 //reset user data since booking is done.
